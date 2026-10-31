@@ -2,7 +2,7 @@
   "name": "Auzy-Keyword-Marker",
   "fileName": "app.py",
   "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/Backend/app.py",
-  "savedAt": "2026-10-31T23:25:54.518Z",
+  "savedAt": "2026-10-31T23:36:50.110Z",
   "tags": [
     {
       "id": "tag_db_url_in",
@@ -51,50 +51,9 @@
         "endLine": 6,
         "endCharacter": 30
       }
-    },
-    {
-      "id": "tag_1793489126889_iisy5",
-      "word": "5000",
-      "title": "Port Configuration",
-      "description": "Port on which server listens",
-      "category": "variable",
-      "variableSubType": "Default",
-      "defaultValues": [
-        "3000",
-        "5000",
-        "8080",
-        "9000"
-      ],
-      "range": {
-        "startLine": 12,
-        "startCharacter": 14,
-        "endLine": 12,
-        "endCharacter": 18
-      }
-    },
-    {
-      "id": "tag_1793489126889_2l4w8",
-      "word": "\"jwt_bearer_token\"",
-      "title": "Host Binding",
-      "description": "Network interface host",
-      "category": "variable",
-      "variableSubType": "Input",
-      "range": {
-        "startLine": 13,
-        "startCharacter": 14,
-        "endLine": 13,
-        "endCharacter": 32
-      }
     }
   ],
   "wires": [
-    {
-      "id": "wire_1793489148599_pplni",
-      "sourceTagId": "tag_auth_token",
-      "targetTagId": "tag_1793489126889_2l4w8",
-      "sourceFile": "Backend/app.py",
-      "targetFile": "Backend/app.py"
-    },
     {
       "id": "wire_1793489154518_cmubq",
       "sourceTagId": "tag_auth_token",

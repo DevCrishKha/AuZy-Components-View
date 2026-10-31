@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
-  "savedAt": "2026-10-31T23:31:13.674Z",
+  "savedAt": "2026-10-31T23:38:38.423Z",
   "viewport": {
-    "x": 184.1109693877553,
-    "y": 74.1499489795919,
-    "zoom": 0.7971938775510202
+    "x": 539.2737691840223,
+    "y": 390.7392218719493,
+    "zoom": 0.635518078404831
   },
   "scope": {
-    "type": "file",
-    "path": "Backend/app.py"
+    "type": "root",
+    "path": ""
   },
   "folders": {
     "Backend": {
@@ -28,8 +28,8 @@
       "isCollapsed": false
     },
     "Backend/app.py": {
-      "x": 0.925289990727296,
-      "y": 57.2748269452708,
+      "x": -74.94082200927272,
+      "y": 24.961482945270774,
       "width": 924,
       "height": 400,
       "isCollapsed": false
@@ -58,10 +58,6 @@
     "Backend/app.py::UserAuthHandler": {
       "x": 505,
       "y": 100
-    },
-    "Backend/app.py::AppBootstrap": {
-      "x": 255,
-      "y": -85
     }
   }
 }
