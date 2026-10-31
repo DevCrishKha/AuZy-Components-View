@@ -22,6 +22,7 @@ An interactive, visual, node-based programming and multi-file code navigation en
    - **Output Tags**: Rendered as `<Text> ? ⭕` (*No Title*). Sockets pull interactive cubic bezier cords.
    - **Default Tags**: Rendered as `<Text> ↓ ? ⭕`. Clicking `↓` reveals a floating menu with preset values.
    - **Tut-Tags**: Rendered as `<Text> ?`. Clicking link text opens a tutorial dialog on canvas.
+   - **Component Wiring Mechanics**: In Auzy-Components-View, wiring an Output/Default tag to an Input tag updates *only* the Input tag's text value (in code and JSON). The tag remains an Input tag, preserving its Title, description, and visual socket. The connecting wire remains visibly attached between both ports across components. (Note: Extension #1 Auzy-Keyword-Marker replaces the tag entirely).
 5. **Component Palette Scaffolding**:
    - Palette sidebar categorized by language, populated dynamically by scanning paths in `sources.json`.
    - Dragging a component chip into a file injects wrapped code and imports tags with adjusted line offsets.

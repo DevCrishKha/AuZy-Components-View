@@ -8,12 +8,13 @@ const vscode = require('vscode');
 const path = require('path');
 const { scanWorkspaceHierarchy } = require('./directoryScanner');
 const { scanPaletteLibraries, dropComponentIntoFile } = require('./paletteScanner');
-const { saveWorkspaceLayout } = require('./persistenceBridge');
+const { saveWorkspaceLayout, loadWorkspaceLayout } = require('./persistenceBridge');
 const {
   connectWire,
   disconnectWire,
   updateInputTagText,
-  applyDefaultValue
+  applyDefaultValue,
+  deleteComponentFromFile
 } = require('./wiringCoordinator');
 
 let currentPanel = null;
@@ -23,9 +24,7 @@ let currentPanel = null;
  * @param {vscode.ExtensionContext} context
  */
 function createOrShowWebviewPanel(context) {
-  const column = vscode.window.activeTextEditor
-    ? vscode.ViewColumn.Beside
-    : vscode.ViewColumn.One;
+  const column = vscode.ViewColumn.Active || vscode.ViewColumn.One;
 
   if (currentPanel) {
     currentPanel.reveal(column);
@@ -75,6 +74,33 @@ function createOrShowWebviewPanel(context) {
 }
 
 /**
+ * Refreshes the webview panel by scanning the workspace and pushing updated graph and palette data.
+ * @param {string} [workspaceRoot]
+ */
+async function refreshWebview(workspaceRoot) {
+  if (!currentPanel) return;
+  const root = workspaceRoot || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  if (!root) return;
+
+  try {
+    const hierarchy = await scanWorkspaceHierarchy(root);
+    const palette = await scanPaletteLibraries(root);
+
+    currentPanel.webview.postMessage({
+      command: 'LOAD_WORKSPACE_DATA',
+      payload: hierarchy
+    });
+
+    currentPanel.webview.postMessage({
+      command: 'UPDATE_PALETTE',
+      payload: { libraries: palette }
+    });
+  } catch (err) {
+    console.error('[WebviewPanelManager] Error refreshing webview:', err);
+  }
+}
+
+/**
  * Handles incoming JSON-RPC IPC messages from the Webview.
  * @param {Object} message
  * @param {string} workspaceRoot
@@ -86,23 +112,19 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
   switch (message.command) {
     case 'REQUEST_INIT':
     case 'REFRESH_WORKSPACE': {
-      const hierarchy = await scanWorkspaceHierarchy(workspaceRoot);
-      const palette = await scanPaletteLibraries(workspaceRoot);
-
-      currentPanel.webview.postMessage({
-        command: 'LOAD_WORKSPACE_DATA',
-        payload: hierarchy
-      });
-
-      currentPanel.webview.postMessage({
-        command: 'UPDATE_PALETTE',
-        payload: { libraries: palette }
-      });
+      await refreshWebview(workspaceRoot);
       break;
     }
 
     case 'SAVE_LAYOUT': {
       saveWorkspaceLayout(workspaceRoot, message.payload);
+      break;
+    }
+
+    case 'DELETE_COMPONENT': {
+      const { fileRelPath, compName } = message.payload;
+      await deleteComponentFromFile(workspaceRoot, fileRelPath, compName);
+      await refreshWebview(workspaceRoot);
       break;
     }
 
@@ -137,7 +159,7 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
 
       const res = await connectWire(workspaceRoot, absSource, absTarget, sourceTagId, targetInputTagId);
       if (res.success) {
-        currentPanel.webview.postMessage({ command: 'WIRE_CONNECTED' });
+        await refreshWebview(workspaceRoot);
       } else {
         vscode.window.showWarningMessage(res.message || 'Failed to connect wire.');
       }
@@ -148,44 +170,49 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
       const { targetFile, wireId } = message.payload;
       const absTarget = path.isAbsolute(targetFile) ? targetFile : path.join(workspaceRoot, targetFile);
       await disconnectWire(workspaceRoot, absTarget, wireId);
-      currentPanel.webview.postMessage({ command: 'WIRE_CONNECTED' });
+      await refreshWebview(workspaceRoot);
       break;
     }
 
     case 'DROP_COMPONENT': {
-      const { component, activeScope } = message.payload;
-      let targetRelPath = '';
+      const { component, targetFileRelPath, dropX, dropY, activeScope } = message.payload;
+      let targetRel = targetFileRelPath;
 
-      if (activeScope?.type === 'file' && activeScope.path) {
-        targetRelPath = activeScope.path;
-      } else {
-        // Fall back to active text editor if open
+      if (!targetRel && activeScope?.type === 'file' && activeScope.path) {
+        targetRel = activeScope.path;
+      }
+
+      if (!targetRel) {
         const activeDoc = vscode.window.activeTextEditor?.document;
         if (activeDoc && !activeDoc.isUntitled) {
-          targetRelPath = path.relative(workspaceRoot, activeDoc.fileName);
+          targetRel = path.relative(workspaceRoot, activeDoc.fileName);
         } else {
-          // Find first matching file by language or first file in workspace
           const hierarchy = await scanWorkspaceHierarchy(workspaceRoot);
           if (hierarchy.files.length > 0) {
-            targetRelPath = hierarchy.files[0].relPath;
+            targetRel = hierarchy.files[0].relPath;
           }
         }
       }
 
-      if (!targetRelPath) {
-        vscode.window.showWarningMessage('Please focus a file or open a file before dropping a component.');
+      if (!targetRel) {
+        vscode.window.showWarningMessage('Please open or focus a file before dropping a component.');
         return;
       }
 
-      const absTarget = path.join(workspaceRoot, targetRelPath);
+      const absTarget = path.join(workspaceRoot, targetRel);
       await dropComponentIntoFile(workspaceRoot, absTarget, component);
 
-      // Refresh workspace canvas to render newly dropped component
-      const refreshedHierarchy = await scanWorkspaceHierarchy(workspaceRoot);
-      currentPanel.webview.postMessage({
-        command: 'LOAD_WORKSPACE_DATA',
-        payload: refreshedHierarchy
-      });
+      // Save dropped coordinates into workspace layout
+      const layout = loadWorkspaceLayout(workspaceRoot) || { components: {} };
+      if (!layout.components) layout.components = {};
+      const compKey = `${targetRel.replace(/\\/g, '/')}::${component.name}`;
+      layout.components[compKey] = {
+        x: Math.round(dropX || 50),
+        y: Math.round(dropY || 60)
+      };
+      saveWorkspaceLayout(workspaceRoot, layout);
+
+      await refreshWebview(workspaceRoot);
       break;
     }
 
@@ -263,6 +290,8 @@ function getWebviewContent(webview, extensionPath) {
     <div id="world">
       <!-- Full-screen SVG Bezier Wires Layer -->
       <svg id="wires-layer"></svg>
+      <!-- Hierarchical Containers & Nodes Layer -->
+      <div id="nodes-container"></div>
     </div>
   </div>
 
@@ -279,6 +308,7 @@ function getWebviewContent(webview, extensionPath) {
 
 module.exports = {
   createOrShowWebviewPanel,
-  getCurrentPanel
+  getCurrentPanel,
+  refreshWebview
 };
 

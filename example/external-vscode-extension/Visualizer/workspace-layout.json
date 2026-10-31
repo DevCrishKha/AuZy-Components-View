@@ -1,19 +1,19 @@
 {
   "version": "1.0.0",
-  "savedAt": "2026-10-31T22:48:18.463Z",
+  "savedAt": "2026-10-31T23:31:13.674Z",
   "viewport": {
-    "x": -16.706052406321533,
-    "y": -10.197981619824077,
-    "zoom": 1.1199999999999999
+    "x": 184.1109693877553,
+    "y": 74.1499489795919,
+    "zoom": 0.7971938775510202
   },
   "scope": {
-    "type": "root",
-    "path": ""
+    "type": "file",
+    "path": "Backend/app.py"
   },
   "folders": {
     "Backend": {
-      "x": 60,
-      "y": 610,
+      "x": -361.536211954404,
+      "y": -534.3150594247295,
       "width": 600,
       "height": 450,
       "isCollapsed": false
@@ -21,25 +21,25 @@
   },
   "files": {
     "app.py": {
-      "x": 60,
-      "y": 60,
+      "x": -115.11200148685923,
+      "y": -9.672766679282605,
       "width": 692,
       "height": 400,
       "isCollapsed": false
     },
     "Backend/app.py": {
-      "x": 832,
-      "y": 60,
+      "x": 0.925289990727296,
+      "y": 57.2748269452708,
       "width": 924,
       "height": 400,
       "isCollapsed": false
     },
     "Readme.txt": {
-      "x": 1836,
-      "y": 60,
+      "x": 694.0682542249983,
+      "y": -24.142339162368543,
       "width": 520,
       "height": 400,
-      "isCollapsed": false
+      "isCollapsed": true
     }
   },
   "components": {
@@ -58,6 +58,10 @@
     "Backend/app.py::UserAuthHandler": {
       "x": 505,
       "y": 100
+    },
+    "Backend/app.py::AppBootstrap": {
+      "x": 255,
+      "y": -85
     }
   }
 }

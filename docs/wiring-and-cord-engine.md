@@ -7,7 +7,7 @@ The **Wiring Engine** powers the interactive Node-RED style cords connecting Out
 ```
 [ Component A: Output Tag ] ───( Bezier Cord )───► [ Component B: Input Tag ]
        liveText: "dbClient"                              Replaced: "userInput" -> "dbClient"
-       type: Output (Green)                              Converts to Output (Green)
+       type: Output                                      type: Input (Stays Input, word updated)
 ```
 
 ---
@@ -136,15 +136,13 @@ When a valid connection is finalized:
    });
    ```
 5. Updates `targetTag` in `Visualizer/<filename>.json`:
-   - `word`: `liveSourceText`
-   - `category`: `sourceTag.category` (`"variable"`)
-   - `variableSubType`: `sourceTag.variableSubType` (becomes `"Output"` or `"Default"`)
-   - `title`: `sourceTag.title || ""`
-   - `description`: `sourceTag.description || ""`
-   - `defaultValues`: `sourceTag.defaultValues ? [...sourceTag.defaultValues] : undefined`
+   - `word`: `liveSourceText` (only the text value changes!)
    - `range.endCharacter`: `targetTag.range.startCharacter + liveSourceText.length`
+   - `variableSubType`: remains `"Input"` (retains its Input socket and live input field)
+   - `title` & `description`: preserved unchanged as originally authored
+   *(Note: In Extension #1 Auzy-Keyword-Marker, wiring an input replaces the tag completely with the output tag. In Auzy-Components-View, only the text changes, keeping its Input tag appearance and metadata intact).*
 6. Persists the JSON file to disk.
-7. Webview converts the Input tag widget on the canvas to match the source tag's styling and ports!
+7. The visual cord remains visibly connected from the Output tag's port (`⭕` on the right) to the Input tag's socket (`⭕` on the left) across components.
 
 ---
 

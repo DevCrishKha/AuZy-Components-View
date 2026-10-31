@@ -2,7 +2,7 @@
   "name": "Auzy-Keyword-Marker",
   "fileName": "app.py",
   "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/app.py",
-  "savedAt": "2026-10-31T22:48:05.584Z",
+  "savedAt": "2026-11-01T04:30:00.000Z",
   "tags": [
     {
       "id": "tag_port_5000",
@@ -27,10 +27,10 @@
     {
       "id": "tag_host_in",
       "word": "\"batch_v1_payload\"",
-      "title": "Raw Data Batch",
-      "description": "Ingested payload stream",
+      "title": "Host Binding",
+      "description": "Network interface host",
       "category": "variable",
-      "variableSubType": "Output",
+      "variableSubType": "Input",
       "range": {
         "startLine": 2,
         "startCharacter": 14,
@@ -55,7 +55,7 @@
   ],
   "wires": [
     {
-      "id": "wire_1793486885582_pr9jb",
+      "id": "wire_demo_1",
       "sourceTagId": "tag_raw_batch",
       "targetTagId": "tag_host_in",
       "sourceFile": "app.py",

@@ -6,7 +6,7 @@
 
 const vscode = require('vscode');
 const { createStatusBarItem } = require('./src/statusBar');
-const { createOrShowWebviewPanel, getCurrentPanel } = require('./src/webviewPanelManager');
+const { createOrShowWebviewPanel, getCurrentPanel, refreshWebview } = require('./src/webviewPanelManager');
 const { saveWorkspaceLayout } = require('./src/persistenceBridge');
 
 /**
@@ -24,11 +24,8 @@ function activate(context) {
     createOrShowWebviewPanel(context);
   });
 
-  const refreshCmd = vscode.commands.registerCommand('auzyComponentsView.refreshCanvas', () => {
-    const panel = getCurrentPanel();
-    if (panel) {
-      panel.webview.postMessage({ command: 'REFRESH_WORKSPACE' });
-    }
+  const refreshCmd = vscode.commands.registerCommand('auzyComponentsView.refreshCanvas', async () => {
+    await refreshWebview();
   });
 
   const resetLayoutCmd = vscode.commands.registerCommand('auzyComponentsView.resetLayout', async () => {
@@ -40,10 +37,7 @@ function activate(context) {
         files: {},
         components: {}
       });
-      const panel = getCurrentPanel();
-      if (panel) {
-        panel.webview.postMessage({ command: 'REFRESH_WORKSPACE' });
-      }
+      await refreshWebview();
       vscode.window.showInformationMessage('Auzy: Canvas layout reset.');
     }
   });
@@ -56,10 +50,7 @@ function activate(context) {
   );
 
   const onVisualizerChange = () => {
-    const panel = getCurrentPanel();
-    if (panel) {
-      panel.webview.postMessage({ command: 'REFRESH_WORKSPACE' });
-    }
+    refreshWebview();
   };
 
   visualizerWatcher.onDidChange(onVisualizerChange);
@@ -70,13 +61,22 @@ function activate(context) {
   // 4. Document Save Listener to sync modified marker comments in code
   const docSaveListener = vscode.workspace.onDidSaveTextDocument((doc) => {
     if (!doc.fileName.includes('Visualizer')) {
-      const panel = getCurrentPanel();
-      if (panel) {
-        panel.webview.postMessage({ command: 'REFRESH_WORKSPACE' });
-      }
+      refreshWebview();
     }
   });
   context.subscriptions.push(docSaveListener);
+
+  // 5. Document Change Listener (live debounced sync when typing or deleting components in editor)
+  let docChangeTimer = null;
+  const docChangeListener = vscode.workspace.onDidChangeTextDocument((e) => {
+    if (!e.document.fileName.includes('Visualizer')) {
+      if (docChangeTimer) clearTimeout(docChangeTimer);
+      docChangeTimer = setTimeout(() => {
+        refreshWebview();
+      }, 400);
+    }
+  });
+  context.subscriptions.push(docChangeListener);
 }
 
 /**

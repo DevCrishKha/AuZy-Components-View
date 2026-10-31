@@ -97,7 +97,7 @@ The Extension Host and Webview communicate in pure JavaScript using a JSON-RPC m
 | `REQUEST_INIT` | `{}` | Sent by the Webview once its DOM is loaded to request initial file data and palette. |
 | `UPDATE_INPUT_TEXT` | `{ fileUri, tagId, oldText, newText, range }` | Sent when the user types a new value into an Input tag's inline textbox. Host updates the source code and JSON. |
 | `APPLY_DEFAULT_VALUE`| `{ fileUri, tagId, selectedValue, range }` | Sent when the user picks a value from a Default tag's dropdown `↓`. Host updates source code. |
-| `CONNECT_WIRE` | `{ fileUri, sourceTagId, targetInputTagId }` | Sent when user drops an Output/Default cord into an Input port. Host replaces code and updates tag subtype. |
+| `CONNECT_WIRE` | `{ fileUri, sourceTagId, targetInputTagId }` | Sent when user drops an Output/Default cord into an Input port. Host updates code text and tag word (preserving Input tag type and metadata) and stores wire. |
 | `DISCONNECT_WIRE` | `{ fileUri, wireId }` | Sent if user deletes a wire or unplugs a connection. |
 | `DROP_COMPONENT` | `{ fileUri, componentId, dropX, dropY }` | Sent when user drags a palette component onto canvas. Host appends code to file and inserts tags. |
 | `CONFIGURE_FOLDERS`| `{ action: 'add' | 'remove', language, folderPath }` | Updates language library source directories in `sources.json`. |

@@ -69,8 +69,8 @@ Tags marked in the source file (stored in the companion Visualizer JSON) are pla
 4. Releasing or clicking on the input socket connects the wire.
 5. Upon connection:
    - The Input tag's text in the source code is replaced with the Output/Default tag's live text.
-   - The Input tag in the JSON file is converted into an Output or Default tag (updating category, subtype, styling, and metadata).
-   - The visual cord remains connected between the two ports.
+   - **In Auzy-Components-View**: The Input tag remains an Input tag (its Title, description, and visual styling remain intact), and only its text value (`word`) and end coordinate change in the JSON file. (Note: In Extension #1 Auzy-Keyword-Marker, wiring an input replaces it completely with the output tag).
+   - The visual cord remains visibly connected between the Output tag's port and the Input tag's port across components.
 
 ---
 
@@ -86,7 +86,7 @@ Tags marked in the source file (stored in the companion Visualizer JSON) are pla
 | **REQ-6** | In-Node Input Text Edit | Input tags render an inline text input. Modifying this text updates the underlying source code file and the tag's `word` entry in the Visualizer JSON. |
 | **REQ-7** | Default Dropdown Selector | Default tags render a dropdown button `↓`. Clicking it displays the tag's `defaultValues`. Selecting one applies it to code and updates the tag. |
 | **REQ-8** | Interactive Tutorial Viewer | Clicking a Tut-Tag on a node displays an overlay dialog rendering the embedded tutorial elements (text cards, code snippets with syntax styling, links, images). |
-| **REQ-9** | Wiring Engine | Output and Default tags feature draggable cord sockets (`⭕`). Connecting to an Input socket updates the code, modifies the tag schema, and draws an SVG bezier curve connecting the nodes. |
+| **REQ-9** | Wiring Engine | Output and Default tags feature draggable cord sockets (`⭕`). Connecting to an Input socket updates the code token, preserves the Input tag's identity and metadata, and draws a permanent SVG bezier curve connecting the ports. |
 | **REQ-10**| Palette Scaffolding | Sidebar palette organized by language. Scans configured folders for `<{<< Component >>}>` blocks and renders preview chips. |
 | **REQ-11**| Folder Configuration UI | Modal or panel to add/remove folder directories per language. Persists settings in `external-vscode-extension/Visualizer/sources.json`. |
 | **REQ-12**| Drag & Drop Insertion | Dragging a palette component onto the canvas appends the code to the document, shifts tags, writes to Visualizer JSON, and spawns the node. |

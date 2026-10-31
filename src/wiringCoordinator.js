@@ -6,7 +6,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { loadVisualizerJson, saveVisualizerJson } = require('./persistenceBridge');
+const { parseComponentsFromSource } = require('./markerParser');
+const { loadVisualizerJson, saveVisualizerJson, loadWorkspaceLayout, saveWorkspaceLayout } = require('./persistenceBridge');
 
 /**
  * Normalizes a file path or URI to an absolute filesystem path.
@@ -95,15 +96,10 @@ async function connectWire(workspaceRoot, sourceFilePath, targetFilePath, source
   // 1. Mutate target source code file
   replaceTextInRange(absTarget, targetTag.range, liveText);
 
-  // 2. Mutate target tag in Visualizer JSON
+  // 2. Mutate target tag in Visualizer JSON:
+  // In Auzy-Components-View: ONLY the text value (word) changes and endCharacter is updated!
+  // Its Title, description, category, and appearance (variableSubType: "Input") stay the same.
   targetTag.word = liveText;
-  targetTag.category = sourceTag.category || 'variable';
-  targetTag.variableSubType = sourceTag.variableSubType; // Converted to Output or Default
-  targetTag.title = sourceTag.title || '';
-  targetTag.description = sourceTag.description || '';
-  if (sourceTag.defaultValues) {
-    targetTag.defaultValues = [...sourceTag.defaultValues];
-  }
   targetTag.range.endCharacter = targetTag.range.startCharacter + liveText.length;
 
   // 3. Record wire in target file metadata
@@ -181,12 +177,80 @@ async function applyDefaultValue(workspaceRoot, filePath, tagId, selectedValue) 
   return updateInputTagText(workspaceRoot, filePath, tagId, selectedValue);
 }
 
+/**
+ * Deletes a component block from source code and synchronizes tag metadata and layout.
+ * @param {string} workspaceRoot
+ * @param {string} fileRelPath
+ * @param {string} compName
+ * @returns {Promise<boolean>}
+ */
+async function deleteComponentFromFile(workspaceRoot, fileRelPath, compName) {
+  const absPath = toLocalPath(path.join(workspaceRoot, fileRelPath));
+  if (!fs.existsSync(absPath)) return false;
+
+  const content = fs.readFileSync(absPath, 'utf8');
+  const components = parseComponentsFromSource(content, fileRelPath);
+  const comp = components.find(c => c.name === compName);
+  if (!comp) return false;
+
+  const lines = content.split(/\r?\n/);
+  const startLine = comp.startMarkerLine;
+  let endLine = comp.endMarkerLine;
+
+  // If there is an empty line immediately following the closing marker, remove it too
+  if (endLine + 1 < lines.length && lines[endLine + 1].trim() === '') {
+    endLine++;
+  }
+
+  const deletedLineCount = endLine - startLine + 1;
+  lines.splice(startLine, deletedLineCount);
+  fs.writeFileSync(absPath, lines.join('\n'), 'utf8');
+
+  // Update Visualizer JSON: remove tags inside component and shift subsequent tag line ranges
+  const doc = loadVisualizerJson(workspaceRoot, absPath);
+  if (doc) {
+    const deletedTagIds = new Set();
+    const remainingTags = [];
+
+    for (const tag of doc.tags || []) {
+      if (tag.range && tag.range.startLine >= comp.contentStartLine && tag.range.endLine <= comp.contentEndLine) {
+        deletedTagIds.add(tag.id);
+      } else if (tag.range && tag.range.startLine > comp.endMarkerLine) {
+        tag.range.startLine = Math.max(0, tag.range.startLine - deletedLineCount);
+        tag.range.endLine = Math.max(0, tag.range.endLine - deletedLineCount);
+        remainingTags.push(tag);
+      } else {
+        remainingTags.push(tag);
+      }
+    }
+
+    doc.tags = remainingTags;
+
+    if (doc.wires) {
+      doc.wires = doc.wires.filter(w => !deletedTagIds.has(w.sourceTagId) && !deletedTagIds.has(w.targetTagId));
+    }
+
+    saveVisualizerJson(workspaceRoot, absPath, doc);
+  }
+
+  // Remove component from workspace-layout.json if present
+  const layout = loadWorkspaceLayout(workspaceRoot);
+  if (layout && layout.components) {
+    const compKey = `${fileRelPath.replace(/\\/g, '/')}::${compName}`;
+    delete layout.components[compKey];
+    saveWorkspaceLayout(workspaceRoot, layout);
+  }
+
+  return true;
+}
+
 module.exports = {
   toLocalPath,
   replaceTextInRange,
   connectWire,
   disconnectWire,
   updateInputTagText,
-  applyDefaultValue
+  applyDefaultValue,
+  deleteComponentFromFile
 };
 

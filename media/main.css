@@ -92,19 +92,29 @@ body, html {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100000px;
-  height: 100000px;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
-  z-index: 10;
+  z-index: 25;
+}
+
+#nodes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .wire-path {
   fill: none;
-  stroke: var(--accent-orange);
-  stroke-width: 3px;
+  stroke: #f59e0b;
+  stroke-width: 3.5px;
   stroke-linecap: round;
   pointer-events: stroke;
   cursor: pointer;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
   transition: stroke 0.2s, stroke-width 0.2s;
 }
 
@@ -347,6 +357,11 @@ body, html {
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
+.file-node.drag-target-active {
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 28px rgba(6, 182, 212, 0.65), inset 0 0 14px rgba(6, 182, 212, 0.25) !important;
+}
+
 .file-header {
   height: 42px;
   padding: 0 14px;
@@ -425,6 +440,11 @@ body, html {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
+.comp-node.selected {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.65), 0 16px 36px rgba(0, 0, 0, 0.6);
+}
+
 .comp-node.dragging {
   cursor: grabbing !important;
   opacity: 0.92;
@@ -441,6 +461,23 @@ body, html {
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comp-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.comp-delete-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.2);
 }
 
 .comp-title {

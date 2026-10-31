@@ -1,5 +1,5 @@
 # <{<< AppBootstrap >>}>
-servicePort = 5000
+servicePort = 3000
 serviceHost = "batch_v1_payload"
 print(f"Server starting on {serviceHost}:{servicePort}")
 # </{<< AppBootstrap >>}>

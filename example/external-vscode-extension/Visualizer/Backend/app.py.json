@@ -1,12 +1,12 @@
 {
   "name": "Auzy-Keyword-Marker",
-  "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/Backend/app.py",
   "fileName": "app.py",
-  "savedAt": "2026-11-01T04:00:00.000Z",
+  "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/Backend/app.py",
+  "savedAt": "2026-10-31T23:25:54.518Z",
   "tags": [
     {
       "id": "tag_db_url_in",
-      "word": "\"postgres://localhost:5432/appdb\"",
+      "word": "\"jwt_bearer_token\"",
       "title": "Database URI",
       "description": "Database connection connection string",
       "category": "variable",
@@ -15,17 +15,22 @@
         "startLine": 1,
         "startCharacter": 8,
         "endLine": 1,
-        "endCharacter": 41
+        "endCharacter": 26
       }
     },
     {
       "id": "tag_pool_size",
-      "word": "10",
+      "word": "50",
       "title": "Max Connections",
       "description": "Maximum database connection pool size",
       "category": "variable",
       "variableSubType": "Default",
-      "defaultValues": ["5", "10", "20", "50"],
+      "defaultValues": [
+        "5",
+        "10",
+        "20",
+        "50"
+      ],
       "range": {
         "startLine": 2,
         "startCharacter": 14,
@@ -46,6 +51,56 @@
         "endLine": 6,
         "endCharacter": 30
       }
+    },
+    {
+      "id": "tag_1793489126889_iisy5",
+      "word": "5000",
+      "title": "Port Configuration",
+      "description": "Port on which server listens",
+      "category": "variable",
+      "variableSubType": "Default",
+      "defaultValues": [
+        "3000",
+        "5000",
+        "8080",
+        "9000"
+      ],
+      "range": {
+        "startLine": 12,
+        "startCharacter": 14,
+        "endLine": 12,
+        "endCharacter": 18
+      }
+    },
+    {
+      "id": "tag_1793489126889_2l4w8",
+      "word": "\"jwt_bearer_token\"",
+      "title": "Host Binding",
+      "description": "Network interface host",
+      "category": "variable",
+      "variableSubType": "Input",
+      "range": {
+        "startLine": 13,
+        "startCharacter": 14,
+        "endLine": 13,
+        "endCharacter": 32
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_1793489148599_pplni",
+      "sourceTagId": "tag_auth_token",
+      "targetTagId": "tag_1793489126889_2l4w8",
+      "sourceFile": "Backend/app.py",
+      "targetFile": "Backend/app.py"
+    },
+    {
+      "id": "wire_1793489154518_cmubq",
+      "sourceTagId": "tag_auth_token",
+      "targetTagId": "tag_db_url_in",
+      "sourceFile": "Backend/app.py",
+      "targetFile": "Backend/app.py"
     }
   ]
 }

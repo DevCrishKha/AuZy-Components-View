@@ -21,12 +21,14 @@
   let activeScope = { type: 'root', path: '' }; // 'root', 'folder', or 'file'
   let activeWireDrag = null; // { sourceTagId, sourceNodeId, startX, startY, sourceFile }
   let activeDropdown = null;
+  let selectedComp = null; // { comp, file, element }
   let saveLayoutDebounceTimer = null;
 
   // DOM Elements
   const container = document.getElementById('canvas-container');
   const world = document.getElementById('world');
   const wiresLayer = document.getElementById('wires-layer');
+  const nodesContainer = document.getElementById('nodes-container') || world;
   const topNav = document.getElementById('top-nav');
   const paletteDrawer = document.getElementById('palette-drawer');
   const paletteTabs = document.getElementById('palette-tabs');
@@ -41,8 +43,34 @@
   window.addEventListener('DOMContentLoaded', () => {
     initCanvasNavigation();
     initToolbarControls();
+    initKeyboardShortcuts();
     vscode.postMessage({ command: 'REQUEST_INIT' });
   });
+
+  function initKeyboardShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedComp) {
+        // Do not trigger deletion if user is typing in an input field
+        const tagName = document.activeElement?.tagName?.toLowerCase();
+        if (tagName === 'input' || tagName === 'textarea') return;
+
+        deleteSelectedComponent();
+      }
+    });
+  }
+
+  function deleteSelectedComponent() {
+    if (!selectedComp) return;
+    const { comp, file } = selectedComp;
+    vscode.postMessage({
+      command: 'DELETE_COMPONENT',
+      payload: {
+        fileRelPath: file.relPath,
+        compName: comp.name
+      }
+    });
+    selectedComp = null;
+  }
 
   window.addEventListener('message', (event) => {
     const message = event.data;
@@ -65,6 +93,7 @@
         renderPalette();
         break;
 
+      case 'REFRESH_WORKSPACE':
       case 'WIRE_CONNECTED':
       case 'TAG_UPDATED':
         vscode.postMessage({ command: 'REFRESH_WORKSPACE' });
@@ -212,8 +241,8 @@
 
   function renderCanvas() {
     if (!workspaceData) return;
-    world.innerHTML = '';
-    wiresLayer.innerHTML = '';
+    nodesContainer.innerHTML = '';
+    wiresLayer.querySelectorAll('.wire-path').forEach(p => p.remove());
 
     // Determine what to display based on activeScope
     if (activeScope.type === 'file') {
@@ -240,7 +269,7 @@
     // 2. Render all root-level files (files not belonging to any folder)
     const rootFiles = (workspaceData.files || []).filter(f => !f.folderRelPath);
     for (const file of rootFiles) {
-      renderFileNode(file, world);
+      renderFileNode(file, nodesContainer);
     }
   }
 
@@ -264,7 +293,7 @@
     // Render files inside this folder
     const files = (workspaceData.files || []).filter(f => f.folderRelPath === folderRelPath);
     for (const file of files) {
-      renderFileNode(file, world);
+      renderFileNode(file, nodesContainer);
     }
   }
 
@@ -280,7 +309,7 @@
     }
 
     // Render this file node expanded at (60, 60)
-    renderFileNode(file, world, true);
+    renderFileNode(file, nodesContainer, true);
   }
 
   // ==========================================================================
@@ -370,7 +399,7 @@
       el.appendChild(body);
     }
 
-    world.appendChild(el);
+    nodesContainer.appendChild(el);
   }
 
   // ==========================================================================
@@ -381,6 +410,7 @@
     const el = document.createElement('div');
     el.className = `file-node ${file.isCollapsed ? 'collapsed' : ''}`;
     el.id = file.id;
+    el.dataset.fileRel = file.relPath;
 
     const posX = isFullScreenScope ? 60 : (file.x || 80);
     const posY = isFullScreenScope ? 60 : (file.y || 80);
@@ -503,10 +533,34 @@
     const header = document.createElement('div');
     header.className = 'comp-header';
     header.innerHTML = `
-      <span class="comp-title" title="${escapeHtml(comp.name)}">${escapeHtml(comp.name)}</span>
-      <span class="comp-meta">${comp.lineCount} lines</span>
+      <div style="display:flex;align-items:center;gap:6px;overflow:hidden;">
+        <span class="comp-title" title="${escapeHtml(comp.name)}">${escapeHtml(comp.name)}</span>
+        <span class="comp-meta">${comp.lineCount} lines</span>
+      </div>
+      <button class="comp-delete-btn" title="Delete component and code from file">🗑️</button>
     `;
+
+    // Click trash button to delete component
+    header.querySelector('.comp-delete-btn').onclick = (e) => {
+      e.stopPropagation();
+      vscode.postMessage({
+        command: 'DELETE_COMPONENT',
+        payload: {
+          fileRelPath: file.relPath,
+          compName: comp.name
+        }
+      });
+    };
+
     el.appendChild(header);
+
+    // Click to select node
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('input')) return;
+      document.querySelectorAll('.comp-node.selected').forEach(n => n.classList.remove('selected'));
+      selectedComp = { comp, file, element: el };
+      el.classList.add('selected');
+    });
 
     // Make ComponentNode draggable
     makeDraggable(el, header, (dx, dy) => {
@@ -766,6 +820,12 @@
   }
 
   function renderAllWires() {
+    requestAnimationFrame(() => {
+      _doRenderWires();
+    });
+  }
+
+  function _doRenderWires() {
     // Clear existing permanent wires
     wiresLayer.querySelectorAll('.wire-path').forEach(p => p.remove());
 
@@ -779,6 +839,8 @@
         if (sourceSocket && targetSocket) {
           const rect1 = sourceSocket.getBoundingClientRect();
           const rect2 = targetSocket.getBoundingClientRect();
+
+          if (rect1.width === 0 || rect2.width === 0) continue;
 
           const p1 = screenToWorld(rect1.left + rect1.width / 2, rect1.top + rect1.height / 2);
           const p2 = screenToWorld(rect2.left + rect2.width / 2, rect2.top + rect2.height / 2);
@@ -1064,38 +1126,80 @@
 
       chip.ondragstart = (e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify(comp));
+        e.dataTransfer.setData('application/json', JSON.stringify(comp));
+        e.dataTransfer.effectAllowed = 'copy';
+        window.__draggedPaletteComponent = comp;
+      };
+
+      chip.ondragend = () => {
+        window.__draggedPaletteComponent = null;
       };
 
       paletteContent.appendChild(chip);
     });
   }
 
-  // Drag and drop onto canvas
-  container.ondragover = (e) => e.preventDefault();
-  container.ondrop = (e) => {
+  // Drag and drop onto canvas or directly into FileNodes
+  window.addEventListener('dragover', (e) => {
     e.preventDefault();
-    try {
-      const rawData = e.dataTransfer.getData('text/plain');
-      if (!rawData) return;
-      const comp = JSON.parse(rawData);
+    e.dataTransfer.dropEffect = 'copy';
 
-      // Determine drop coordinates
-      const worldPos = screenToWorld(e.clientX, e.clientY);
-
-      // Send DROP_COMPONENT IPC
-      vscode.postMessage({
-        command: 'DROP_COMPONENT',
-        payload: {
-          component: comp,
-          dropX: worldPos.x,
-          dropY: worldPos.y,
-          activeScope
-        }
-      });
-    } catch (err) {
-      console.error('Error handling dropped component:', err);
+    const fileNode = e.target.closest ? e.target.closest('.file-node') : null;
+    document.querySelectorAll('.file-node.drag-target-active').forEach(f => {
+      if (f !== fileNode) f.classList.remove('drag-target-active');
+    });
+    if (fileNode) {
+      fileNode.classList.add('drag-target-active');
     }
-  };
+  });
+
+  window.addEventListener('dragleave', (e) => {
+    if (!e.relatedTarget) {
+      document.querySelectorAll('.file-node.drag-target-active').forEach(f => f.classList.remove('drag-target-active'));
+    }
+  });
+
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.file-node.drag-target-active').forEach(f => f.classList.remove('drag-target-active'));
+
+    let comp = window.__draggedPaletteComponent;
+    if (!comp) {
+      try {
+        const rawData = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
+        if (rawData) comp = JSON.parse(rawData);
+      } catch (_) {}
+    }
+
+    if (!comp) return;
+
+    // Detect if dropped on or inside a FileNode
+    const fileNodeEl = e.target.closest ? e.target.closest('.file-node') : null;
+    let targetFileRel = fileNodeEl ? fileNodeEl.dataset.fileRel : '';
+
+    if (!targetFileRel && activeScope.type === 'file') {
+      targetFileRel = activeScope.path;
+    }
+
+    if (!targetFileRel && workspaceData?.files?.length > 0) {
+      targetFileRel = workspaceData.files[0].relPath;
+    }
+
+    const worldPos = screenToWorld(e.clientX, e.clientY);
+
+    vscode.postMessage({
+      command: 'DROP_COMPONENT',
+      payload: {
+        component: comp,
+        targetFileRelPath: targetFileRel,
+        dropX: worldPos.x,
+        dropY: worldPos.y,
+        activeScope
+      }
+    });
+
+    window.__draggedPaletteComponent = null;
+  });
 
   // Helper
   function escapeHtml(str) {
