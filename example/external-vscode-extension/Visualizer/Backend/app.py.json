@@ -1,0 +1,51 @@
+{
+  "name": "Auzy-Keyword-Marker",
+  "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/Backend/app.py",
+  "fileName": "app.py",
+  "savedAt": "2026-11-01T04:00:00.000Z",
+  "tags": [
+    {
+      "id": "tag_db_url_in",
+      "word": "\"postgres://localhost:5432/appdb\"",
+      "title": "Database URI",
+      "description": "Database connection connection string",
+      "category": "variable",
+      "variableSubType": "Input",
+      "range": {
+        "startLine": 1,
+        "startCharacter": 8,
+        "endLine": 1,
+        "endCharacter": 41
+      }
+    },
+    {
+      "id": "tag_pool_size",
+      "word": "10",
+      "title": "Max Connections",
+      "description": "Maximum database connection pool size",
+      "category": "variable",
+      "variableSubType": "Default",
+      "defaultValues": ["5", "10", "20", "50"],
+      "range": {
+        "startLine": 2,
+        "startCharacter": 14,
+        "endLine": 2,
+        "endCharacter": 16
+      }
+    },
+    {
+      "id": "tag_auth_token",
+      "word": "\"jwt_bearer_token\"",
+      "title": "Authentication Token",
+      "description": "Generated JWT token",
+      "category": "variable",
+      "variableSubType": "Output",
+      "range": {
+        "startLine": 6,
+        "startCharacter": 12,
+        "endLine": 6,
+        "endCharacter": 30
+      }
+    }
+  ]
+}

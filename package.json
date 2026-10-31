@@ -1,0 +1,38 @@
+{
+  "name": "auzy-components-view",
+  "displayName": "Auzy: Components View",
+  "description": "Interactive multi-file node-based component viewer, variable wiring engine, and scaffolding canvas for VS Code",
+  "version": "0.1.0",
+  "publisher": "auzy",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "auzyComponentsView.openView",
+        "title": "Auzy: Open Components View",
+        "icon": "$(circuit-board)"
+      },
+      {
+        "command": "auzyComponentsView.refreshCanvas",
+        "title": "Auzy: Refresh Components Canvas",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "auzyComponentsView.resetLayout",
+        "title": "Auzy: Reset Canvas Layout"
+      }
+    ]
+  }
+}

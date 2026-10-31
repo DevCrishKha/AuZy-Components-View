@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "savedAt": "2026-10-31T22:48:18.463Z",
+  "viewport": {
+    "x": -16.706052406321533,
+    "y": -10.197981619824077,
+    "zoom": 1.1199999999999999
+  },
+  "scope": {
+    "type": "root",
+    "path": ""
+  },
+  "folders": {
+    "Backend": {
+      "x": 60,
+      "y": 610,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    }
+  },
+  "files": {
+    "app.py": {
+      "x": 60,
+      "y": 60,
+      "width": 692,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "Backend/app.py": {
+      "x": 832,
+      "y": 60,
+      "width": 924,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "Readme.txt": {
+      "x": 1836,
+      "y": 60,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    }
+  },
+  "components": {
+    "app.py::AppBootstrap": {
+      "x": 35,
+      "y": 100
+    },
+    "app.py::DataIngestion": {
+      "x": 321,
+      "y": 100
+    },
+    "Backend/app.py::DatabaseConnection": {
+      "x": 35,
+      "y": 100
+    },
+    "Backend/app.py::UserAuthHandler": {
+      "x": 505,
+      "y": 100
+    }
+  }
+}
