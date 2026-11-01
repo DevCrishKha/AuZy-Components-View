@@ -1,10 +1,5 @@
-# <{<< AppBootstrap >>}>
-servicePort = 3000
-serviceHost = "batch_v1_payload"
-print(f"Server starting on {serviceHost}:{servicePort}")
-# </{<< AppBootstrap >>}>
-
-# <{<< DataIngestion >>}>
-rawBatch = "batch_v1_payload"
-isProcessed = False
-# </{<< DataIngestion >>}>
+# <{<< UserAuthHandler >>}>
+authToken = "jwt_bearer_token"
+def changes():
+    print("Hi how are you")
+# </{<< UserAuthHandler >>}>

@@ -49,7 +49,9 @@ function activate(context) {
     '**/external-vscode-extension/Visualizer/**/*.json'
   );
 
-  const onVisualizerChange = () => {
+  const onVisualizerChange = (uri) => {
+    // Ignore layout file changes to prevent re-render loops during drag
+    if (uri && uri.fsPath && uri.fsPath.endsWith('workspace-layout.json')) return;
     refreshWebview();
   };
 

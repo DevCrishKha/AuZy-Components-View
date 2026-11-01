@@ -1,65 +1,7 @@
 {
   "name": "Auzy-Keyword-Marker",
-  "fileName": "app.py",
   "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/app.py",
-  "savedAt": "2026-11-01T04:30:00.000Z",
-  "tags": [
-    {
-      "id": "tag_port_5000",
-      "word": "5000",
-      "title": "Port Configuration",
-      "description": "Port on which server listens",
-      "category": "variable",
-      "variableSubType": "Default",
-      "defaultValues": [
-        "3000",
-        "5000",
-        "8080",
-        "9000"
-      ],
-      "range": {
-        "startLine": 1,
-        "startCharacter": 14,
-        "endLine": 1,
-        "endCharacter": 18
-      }
-    },
-    {
-      "id": "tag_host_in",
-      "word": "\"batch_v1_payload\"",
-      "title": "Host Binding",
-      "description": "Network interface host",
-      "category": "variable",
-      "variableSubType": "Input",
-      "range": {
-        "startLine": 2,
-        "startCharacter": 14,
-        "endLine": 2,
-        "endCharacter": 32
-      }
-    },
-    {
-      "id": "tag_raw_batch",
-      "word": "\"batch_v1_payload\"",
-      "title": "Raw Data Batch",
-      "description": "Ingested payload stream",
-      "category": "variable",
-      "variableSubType": "Output",
-      "range": {
-        "startLine": 7,
-        "startCharacter": 11,
-        "endLine": 7,
-        "endCharacter": 29
-      }
-    }
-  ],
-  "wires": [
-    {
-      "id": "wire_demo_1",
-      "sourceTagId": "tag_raw_batch",
-      "targetTagId": "tag_host_in",
-      "sourceFile": "app.py",
-      "targetFile": "app.py"
-    }
-  ]
+  "fileName": "app.py",
+  "savedAt": "2026-10-31T23:58:28.919Z",
+  "tags": []
 }

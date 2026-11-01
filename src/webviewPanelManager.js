@@ -122,7 +122,8 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
     }
 
     case 'DELETE_COMPONENT': {
-      const { fileRelPath, compName } = message.payload;
+      const { fileRelPath, compName, layout } = message.payload;
+      if (layout) saveWorkspaceLayout(workspaceRoot, layout);
       await deleteComponentFromFile(workspaceRoot, fileRelPath, compName);
       await refreshWebview(workspaceRoot);
       break;
@@ -153,7 +154,8 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
     }
 
     case 'CONNECT_WIRE': {
-      const { sourceFile, targetFile, sourceTagId, targetInputTagId } = message.payload;
+      const { sourceFile, targetFile, sourceTagId, targetInputTagId, layout } = message.payload;
+      if (layout) saveWorkspaceLayout(workspaceRoot, layout);
       const absSource = path.isAbsolute(sourceFile) ? sourceFile : path.join(workspaceRoot, sourceFile);
       const absTarget = path.isAbsolute(targetFile) ? targetFile : path.join(workspaceRoot, targetFile);
 
@@ -167,7 +169,8 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
     }
 
     case 'DISCONNECT_WIRE': {
-      const { targetFile, wireId } = message.payload;
+      const { targetFile, wireId, layout } = message.payload;
+      if (layout) saveWorkspaceLayout(workspaceRoot, layout);
       const absTarget = path.isAbsolute(targetFile) ? targetFile : path.join(workspaceRoot, targetFile);
       await disconnectWire(workspaceRoot, absTarget, wireId);
       await refreshWebview(workspaceRoot);
@@ -175,7 +178,8 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
     }
 
     case 'DROP_COMPONENT': {
-      const { component, targetFileRelPath, dropX, dropY, activeScope } = message.payload;
+      const { component, targetFileRelPath, dropX, dropY, activeScope, layout: clientLayout } = message.payload;
+      if (clientLayout) saveWorkspaceLayout(workspaceRoot, clientLayout);
       let targetRel = targetFileRelPath;
 
       if (!targetRel && activeScope?.type === 'file' && activeScope.path) {

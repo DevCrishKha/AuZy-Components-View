@@ -2,62 +2,66 @@
   "name": "Auzy-Keyword-Marker",
   "fileName": "app.py",
   "fileUri": "file:///c%3A/Users/User/Desktop/VSCode_Extension/Auzy-Components-View/example/Backend/app.py",
-  "savedAt": "2026-10-31T23:36:50.110Z",
+  "savedAt": "2026-11-01T00:32:51.043Z",
   "tags": [
     {
-      "id": "tag_db_url_in",
-      "word": "\"jwt_bearer_token\"",
-      "title": "Database URI",
-      "description": "Database connection connection string",
-      "category": "variable",
-      "variableSubType": "Input",
+      "id": "tag_1793491315678_hyvu8",
+      "word": "",
+      "title": "",
       "range": {
-        "startLine": 1,
-        "startCharacter": 8,
-        "endLine": 1,
-        "endCharacter": 26
-      }
-    },
-    {
-      "id": "tag_pool_size",
-      "word": "50",
-      "title": "Max Connections",
-      "description": "Maximum database connection pool size",
+        "startLine": 10,
+        "startCharacter": 9,
+        "endLine": 10,
+        "endCharacter": 126
+      },
       "category": "variable",
       "variableSubType": "Default",
       "defaultValues": [
-        "5",
-        "10",
-        "20",
-        "50"
+        "may be",
+        "hello world",
+        "I love you"
       ],
-      "range": {
-        "startLine": 2,
-        "startCharacter": 14,
-        "endLine": 2,
-        "endCharacter": 16
-      }
+      "description": ""
     },
     {
-      "id": "tag_auth_token",
-      "word": "\"jwt_bearer_token\"",
-      "title": "Authentication Token",
-      "description": "Generated JWT token",
+      "id": "tag_1793491561859_b8m6t",
+      "word": "hi mister",
+      "title": "",
+      "range": {
+        "startLine": 1,
+        "startCharacter": 9,
+        "endLine": 1,
+        "endCharacter": 18
+      },
       "category": "variable",
-      "variableSubType": "Output",
+      "variableSubType": "Input",
+      "description": ""
+    },
+    {
+      "id": "tag_1793493145067_i9it3",
+      "word": "hi mister",
+      "title": "",
       "range": {
         "startLine": 6,
-        "startCharacter": 12,
+        "startCharacter": 9,
         "endLine": 6,
-        "endCharacter": 30
-      }
+        "endCharacter": 18
+      },
+      "category": "variable",
+      "variableSubType": "Default",
+      "defaultValues": [
+        "hello world",
+        "hi mister",
+        "etc"
+      ],
+      "description": ""
     }
   ],
   "wires": [
     {
-      "id": "wire_1793489154518_cmubq",
-      "sourceTagId": "tag_auth_token",
-      "targetTagId": "tag_db_url_in",
+      "id": "wire_1793493155064_ipye4",
+      "sourceTagId": "tag_1793493145067_i9it3",
+      "targetTagId": "tag_1793491561859_b8m6t",
       "sourceFile": "Backend/app.py",
       "targetFile": "Backend/app.py"
     }

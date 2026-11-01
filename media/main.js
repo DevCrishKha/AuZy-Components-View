@@ -23,6 +23,7 @@
   let activeDropdown = null;
   let selectedComp = null; // { comp, file, element }
   let saveLayoutDebounceTimer = null;
+  let isDraggingAnyNode = false; // Global flag to suppress re-renders during drag
 
   // DOM Elements
   const container = document.getElementById('canvas-container');
@@ -66,7 +67,8 @@
       command: 'DELETE_COMPONENT',
       payload: {
         fileRelPath: file.relPath,
-        compName: comp.name
+        compName: comp.name,
+        layout: buildLayoutData()
       }
     });
     selectedComp = null;
@@ -76,6 +78,8 @@
     const message = event.data;
     switch (message.command) {
       case 'LOAD_WORKSPACE_DATA':
+        // Suppress re-renders while dragging a node to prevent snap-back
+        if (isDraggingAnyNode) break;
         workspaceData = message.payload;
         if (workspaceData.viewport) {
           viewTransform = { ...workspaceData.viewport };
@@ -96,6 +100,8 @@
       case 'REFRESH_WORKSPACE':
       case 'WIRE_CONNECTED':
       case 'TAG_UPDATED':
+        // Suppress refresh while dragging to prevent snap-back
+        if (isDraggingAnyNode) break;
         vscode.postMessage({ command: 'REFRESH_WORKSPACE' });
         break;
 
@@ -188,51 +194,101 @@
   // Layout Persistence Bridge
   // ==========================================================================
 
+  /**
+   * Builds the current layout data snapshot from in-memory state and DOM.
+   * @returns {Object|null}
+   */
+  function buildLayoutData() {
+    if (!workspaceData) return null;
+
+    const layoutData = {
+      viewport: { ...viewTransform },
+      scope: { ...activeScope },
+      folders: {},
+      files: {},
+      components: {}
+    };
+
+    for (const folder of workspaceData.folders || []) {
+      const folderEl = document.getElementById(folder.id);
+      const domX = folderEl ? parseFloat(folderEl.style.left) : NaN;
+      const domY = folderEl ? parseFloat(folderEl.style.top) : NaN;
+      layoutData.folders[folder.relPath] = {
+        x: !isNaN(domX) ? domX : (folder.x || 60),
+        y: !isNaN(domY) ? domY : (folder.y || 60),
+        width: folder.width,
+        height: folder.height,
+        isCollapsed: !!folder.isCollapsed
+      };
+    }
+
+    for (const file of workspaceData.files || []) {
+      const fileEl = document.getElementById(file.id);
+      const domX = fileEl ? parseFloat(fileEl.style.left) : NaN;
+      const domY = fileEl ? parseFloat(fileEl.style.top) : NaN;
+      layoutData.files[file.relPath] = {
+        x: !isNaN(domX) ? domX : (file.x || 80),
+        y: !isNaN(domY) ? domY : (file.y || 80),
+        width: file.width,
+        height: file.height,
+        isCollapsed: !!file.isCollapsed
+      };
+
+      // Extract components directly from file.components (where live drag updates occur)
+      for (const comp of file.components || []) {
+        if (comp.compKey) {
+          const compEl = document.getElementById(comp.id);
+          const compDomX = compEl ? parseFloat(compEl.style.left) : NaN;
+          const compDomY = compEl ? parseFloat(compEl.style.top) : NaN;
+          layoutData.components[comp.compKey] = {
+            x: !isNaN(compDomX) ? compDomX : (comp.x || 30),
+            y: !isNaN(compDomY) ? compDomY : (comp.y || 60)
+          };
+        }
+      }
+    }
+
+    // Fallback: also include any components from workspaceData.components if not in files
+    for (const comp of workspaceData.components || []) {
+      if (comp.compKey && !layoutData.components[comp.compKey]) {
+        layoutData.components[comp.compKey] = {
+          x: comp.x || 30,
+          y: comp.y || 60
+        };
+      }
+    }
+
+    return layoutData;
+  }
+
+  /**
+   * Debounced layout save — used during continuous operations like dragging and panning.
+   */
   function scheduleSaveLayout() {
     if (saveLayoutDebounceTimer) clearTimeout(saveLayoutDebounceTimer);
     saveLayoutDebounceTimer = setTimeout(() => {
-      if (!workspaceData) return;
-
-      const layoutData = {
-        viewport: { ...viewTransform },
-        scope: { ...activeScope },
-        folders: {},
-        files: {},
-        components: {}
-      };
-
-      for (const folder of workspaceData.folders || []) {
-        layoutData.folders[folder.relPath] = {
-          x: folder.x,
-          y: folder.y,
-          width: folder.width,
-          height: folder.height,
-          isCollapsed: !!folder.isCollapsed
-        };
+      const layoutData = buildLayoutData();
+      if (layoutData) {
+        vscode.postMessage({ command: 'SAVE_LAYOUT', payload: layoutData });
       }
-
-      for (const file of workspaceData.files || []) {
-        layoutData.files[file.relPath] = {
-          x: file.x,
-          y: file.y,
-          width: file.width,
-          height: file.height,
-          isCollapsed: !!file.isCollapsed
-        };
-      }
-
-      for (const comp of workspaceData.components || []) {
-        layoutData.components[comp.compKey] = {
-          x: comp.x,
-          y: comp.y
-        };
-      }
-
-      vscode.postMessage({
-        command: 'SAVE_LAYOUT',
-        payload: layoutData
-      });
     }, 400);
+  }
+
+  /**
+   * Immediately flushes the current layout to disk (cancels any pending debounce).
+   * Call this BEFORE sending any command that will trigger a full canvas refresh
+   * (CONNECT_WIRE, DISCONNECT_WIRE, DELETE_COMPONENT, etc.) so that the refreshed
+   * workspace re-reads the latest positions from disk.
+   */
+  function flushLayoutSave() {
+    if (saveLayoutDebounceTimer) {
+      clearTimeout(saveLayoutDebounceTimer);
+      saveLayoutDebounceTimer = null;
+    }
+    const layoutData = buildLayoutData();
+    if (layoutData) {
+      vscode.postMessage({ command: 'SAVE_LAYOUT', payload: layoutData });
+    }
   }
 
   // ==========================================================================
@@ -547,7 +603,8 @@
         command: 'DELETE_COMPONENT',
         payload: {
           fileRelPath: file.relPath,
-          compName: comp.name
+          compName: comp.name,
+          layout: buildLayoutData()
         }
       });
     };
@@ -568,6 +625,13 @@
       comp.y = (comp.y || 60) + dy;
       el.style.left = `${comp.x}px`;
       el.style.top = `${comp.y}px`;
+      if (workspaceData && workspaceData.components) {
+        const globalComp = workspaceData.components.find(c => c.compKey === comp.compKey);
+        if (globalComp) {
+          globalComp.x = comp.x;
+          globalComp.y = comp.y;
+        }
+      }
       renderAllWires();
       scheduleSaveLayout();
     });
@@ -770,6 +834,9 @@
 
       cancelActiveWire();
 
+      // Flush layout to disk before the refresh triggered by CONNECT_WIRE
+      flushLayoutSave();
+
       // Trigger wire connection IPC
       vscode.postMessage({
         command: 'CONNECT_WIRE',
@@ -777,7 +844,8 @@
           sourceFile,
           targetFile,
           sourceTagId,
-          targetInputTagId
+          targetInputTagId,
+          layout: buildLayoutData()
         }
       });
     });
@@ -852,11 +920,13 @@
 
           path.onclick = (e) => {
             e.stopPropagation();
+            flushLayoutSave();
             vscode.postMessage({
               command: 'DISCONNECT_WIRE',
               payload: {
                 targetFile: file.relPath,
-                wireId: wire.id
+                wireId: wire.id,
+                layout: buildLayoutData()
               }
             });
           };
@@ -879,6 +949,7 @@
     handle.addEventListener('mousedown', (e) => {
       if (e.button !== 0 || e.target.closest('button') || e.target.closest('input')) return;
       isDragging = true;
+      isDraggingAnyNode = true;
       prevMouseX = e.clientX;
       prevMouseY = e.clientY;
       element.classList.add('dragging');
@@ -898,7 +969,10 @@
     window.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
+        isDraggingAnyNode = false;
         element.classList.remove('dragging');
+        // Force a deferred save + refresh now that drag ended
+        scheduleSaveLayout();
       }
     });
   }
@@ -1194,7 +1268,8 @@
         targetFileRelPath: targetFileRel,
         dropX: worldPos.x,
         dropY: worldPos.y,
-        activeScope
+        activeScope,
+        layout: buildLayoutData()
       }
     });
 

@@ -1,10 +1,9 @@
 # <{<< DatabaseConnection >>}>
-dbUrl = "jwt_bearer_token"
+dbUrl = "hi mister"
 maxPoolSize = 50
 # </{<< DatabaseConnection >>}>
 
-# <{<< UserAuthHandler >>}>
-authToken = "jwt_bearer_token"
-def changes():
-    print("Hi how are you")
-# </{<< UserAuthHandler >>}>
+# <{<< DatabaseConnection 4 >>}>
+dbUrl = "hi mister"
+maxPoolSize = 50
+# </{<< DatabaseConnection 4 >>}> 
