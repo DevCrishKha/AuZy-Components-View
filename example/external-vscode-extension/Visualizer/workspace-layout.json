@@ -1,10 +1,10 @@
 {
   "version": "1.0.0",
-  "savedAt": "2026-11-01T00:32:55.836Z",
+  "savedAt": "2026-11-03T15:03:52.602Z",
   "viewport": {
-    "x": 553.5253064585687,
-    "y": 631.3905921794548,
-    "zoom": 0.3606100249815793
+    "x": 605.8342129038472,
+    "y": 933.9877287171166,
+    "zoom": 0.5066311211773206
   },
   "scope": {
     "type": "root",
@@ -12,8 +12,8 @@
   },
   "folders": {
     "Backend": {
-      "x": 582.849,
-      "y": -797.368,
+      "x": -79.471,
+      "y": -1511.39,
       "width": 600,
       "height": 450,
       "isCollapsed": false
@@ -21,39 +21,81 @@
   },
   "files": {
     "app.py": {
-      "x": -768.16,
-      "y": -900.829,
+      "x": -919.153,
+      "y": -1221.89,
       "width": 692,
       "height": 469,
-      "isCollapsed": false
+      "isCollapsed": true
     },
     "Backend/app.py": {
-      "x": 78.3214,
-      "y": 47.2183,
+      "x": 129.345,
+      "y": 137.35,
       "width": 924,
       "height": 457,
       "isCollapsed": false
     },
+    "Backend/app2.py": {
+      "x": -73.2723,
+      "y": 222.056,
+      "width": 340,
+      "height": 663,
+      "isCollapsed": false
+    },
     "Readme.txt": {
-      "x": 1041.46,
-      "y": 86.3917,
+      "x": -900.418,
+      "y": -1133.87,
       "width": 520,
       "height": 400,
       "isCollapsed": true
     }
   },
   "components": {
-    "app.py::UserAuthHandler": {
-      "x": 35,
-      "y": 100
-    },
     "Backend/app.py::DatabaseConnection": {
-      "x": 112.773,
-      "y": 261.818
+      "x": 532.218,
+      "y": 128.651
     },
     "Backend/app.py::DatabaseConnection 4": {
-      "x": 80.1584,
-      "y": 51.7342
+      "x": 239.606,
+      "y": -26.6192
+    },
+    "Backend/app.py::DatabaseConnection-1": {
+      "x": 198.855,
+      "y": 188.676
+    },
+    "Backend/app2.py::DatabaseConnection": {
+      "x": 57.5561,
+      "y": 41.0139
+    },
+    "Backend/app2.py::DatabaseConnection 4": {
+      "x": 55.3728,
+      "y": 226.687
+    },
+    "Backend/app2.py::DatabaseConnection-1": {
+      "x": 59.1712,
+      "y": 418.25
     }
-  }
+  },
+  "wires": [
+    {
+      "id": "wire_1793529126933_v6hux",
+      "sourceTagId": "tag_1793493145067_i9it3",
+      "targetTagId": "tag_1793529079177_pifk6",
+      "sourceFile": "Backend/app.py",
+      "targetFile": "Backend/app.py"
+    },
+    {
+      "id": "wire_1793718131524_iuwgb",
+      "sourceTagId": "tag_1793527480180_2u8zv",
+      "targetTagId": "tag_1793491561859_b8m6t",
+      "sourceFile": "Backend/app2.py",
+      "targetFile": "Backend/app.py"
+    },
+    {
+      "id": "wire_1793718183228_go1uz",
+      "sourceTagId": "tag_1793527494003_fd9sw",
+      "targetTagId": "tag_1793527546003_guk3m",
+      "sourceFile": "Backend/app2.py",
+      "targetFile": "Backend/app2.py"
+    }
+  ]
 }

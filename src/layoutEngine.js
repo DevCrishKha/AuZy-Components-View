@@ -115,13 +115,13 @@ function layoutTagsOnNode(tags = [], nodeHeight = 150, nodeWidth = 240) {
 /**
  * Calculates bounding box and auto-grid layout for children in a container (FileNode or FolderNode).
  * @param {Array<{ id: string, width?: number, height?: number }>} items
- * @param {number} [columns=3]
- * @param {number} [padding=30]
+ * @param {number} [columns=1]
+ * @param {number} [padding=35]
  * @param {number} [gap=30]
- * @param {number} [headerOffset=50]
+ * @param {number} [headerOffset=60]
  * @returns {{ width: number, height: number, positions: Map<string, {x: number, y: number}> }}
  */
-function computeContainerLayout(items = [], columns = 3, padding = 35, gap = 30, headerOffset = 60) {
+function computeContainerLayout(items = [], columns = 1, padding = 35, gap = 30, headerOffset = 60) {
   if (items.length === 0) {
     return { width: 320, height: 180, positions: new Map() };
   }

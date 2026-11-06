@@ -58,10 +58,19 @@ function saveWorkspaceLayout(workspaceRoot, layoutData) {
     const dir = getVisualizerDir(workspaceRoot);
     ensureDirSync(dir);
     const layoutPath = path.join(dir, LAYOUT_FILE_NAME);
+
+    let existingLayout = {};
+    if (fs.existsSync(layoutPath)) {
+      try {
+        existingLayout = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+      } catch (_) {}
+    }
+
     const payload = {
       version: '1.0.0',
-      savedAt: new Date().toISOString(),
-      ...layoutData
+      ...existingLayout,
+      ...layoutData,
+      savedAt: new Date().toISOString()
     };
     fs.writeFileSync(layoutPath, JSON.stringify(payload, null, 2), 'utf8');
     return true;

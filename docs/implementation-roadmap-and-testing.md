@@ -97,6 +97,19 @@ Auzy-Components-View/
 - Modal overlay for Tut-Tags rendering tutorial cards and code blocks.
 - End-to-end testing with the mock files in `example/`.
 
+### Phase 7: Default-to-Input Propagation & Wire Integrity Auto-Check
+- **Default Tag Inline Editing**: Replaced the static Default tag word `<span>` with a live `<input type="text">` element. The Default tag now behaves identically to an Input tag visually — the user can type a new value directly on the canvas node.
+- **Propagation on Change**: When the Default tag's inline input is committed (`onchange`), the extension host:
+  1. Updates the Default tag's `word` in its source file and Visualizer JSON (`APPLY_DEFAULT_VALUE`).
+  2. Scans all workspace wires (from `workspace-layout.json` + all Visualizer JSONs) for connections where `sourceTagId === <changedDefaultTagId>`.
+  3. Calls `updateInputTagText` on each connected Input tag with the new text, propagating the value across files.
+- **Immediate DOM Sync**: `syncConnectedInputsInDom(sourceTagId, newText)` in `media/main.js` updates connected Input `<input>` elements in the DOM instantly, before the full canvas refresh arrives from the host.
+- **Wire Integrity Check on Canvas Refresh**: Inside `src/directoryScanner.js`, every time the workspace is scanned (canvas refresh):
+  1. All wired tag pairs (from both `workspace-layout.json` and Visualizer JSONs) are collected and deduplicated.
+  2. For each wire, the `word` of the source tag and target tag are compared.
+  3. If the words differ, the wire is automatically removed from `workspace-layout.json` and the affected Visualizer JSON files.
+  4. Only connected tags are checked — unconnected tags are never evaluated for integrity.
+
 ---
 
 ## 3. Unit Test Specifications
@@ -121,6 +134,15 @@ Run tests with Node's native runner: `node --test test/**/*.test.js`.
 2. Verifies Input tag `variableSubType` is converted to `"Output"`.
 3. Verifies metadata (`title`, `description`) is cloned correctly.
 4. Verifies wiring a Default tag converts Input tag to `"Default"` and copies `defaultValues`.
+5. Verifies changing a Default tag's text propagates to a connected Input tag in another file (cross-file propagation).
+6. Verifies changing a Default tag's text propagates to multiple connected Input tags simultaneously.
+7. Verifies same-file propagation: Default tag and Input tag in the same Visualizer JSON are both updated.
+
+### 3.4 Directory Scanner Tests (`test/directoryScanner.test.js`)
+1. Verifies that a wire between two tags with matching `word` text is preserved on canvas refresh.
+2. Verifies that a wire between two tags with mismatched `word` text is automatically removed from `workspace-layout.json` and both Visualizer JSONs on canvas refresh.
+3. Verifies that an input-to-default wire with diverged text is also removed during canvas refresh.
+4. Verifies that unconnected tags are never evaluated or removed during the integrity check.
 
 ---
 

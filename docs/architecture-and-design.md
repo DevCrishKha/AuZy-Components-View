@@ -95,8 +95,8 @@ The Extension Host and Webview communicate in pure JavaScript using a JSON-RPC m
 | Command | Payload | Description |
 | :--- | :--- | :--- |
 | `REQUEST_INIT` | `{}` | Sent by the Webview once its DOM is loaded to request initial file data and palette. |
-| `UPDATE_INPUT_TEXT` | `{ fileUri, tagId, oldText, newText, range }` | Sent when the user types a new value into an Input tag's inline textbox. Host updates the source code and JSON. |
-| `APPLY_DEFAULT_VALUE`| `{ fileUri, tagId, selectedValue, range }` | Sent when the user picks a value from a Default tag's dropdown `↓`. Host updates source code. |
+| `UPDATE_INPUT_TEXT` | `{ fileUri, tagId, oldText, newText, range }` | Sent when the user types a new value into an Input **or Default** tag's inline textbox. Host updates the source code and JSON. For Default tags, all connected Input tags are also automatically updated in code. |
+| `APPLY_DEFAULT_VALUE`| `{ fileUri, tagId, selectedValue, range }` | Sent when the user picks a value from a Default tag's dropdown `↓`. Host updates source code. All Input tags connected to this Default tag via a wire are also automatically updated. |
 | `CONNECT_WIRE` | `{ fileUri, sourceTagId, targetInputTagId }` | Sent when user drops an Output/Default cord into an Input port. Host updates code text and tag word (preserving Input tag type and metadata) and stores wire. |
 | `DISCONNECT_WIRE` | `{ fileUri, wireId }` | Sent if user deletes a wire or unplugs a connection. |
 | `DROP_COMPONENT` | `{ fileUri, componentId, dropX, dropY }` | Sent when user drags a palette component onto canvas. Host appends code to file and inserts tags. |
@@ -132,3 +132,67 @@ Because Extension #1 (Auzy-Keyword-Marker) and Extension #2 (Auzy-Components-Vie
 1. The Components View uses `vscode.window.createWebviewPanel('auzyComponentsView', 'Auzy: Components View', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true })`.
 2. Setting `retainContextWhenHidden: true` prevents the Webview from losing its canvas coordinates, zoom scale, and active inputs when the user toggles back and forth between the code editor and node canvas.
 3. On extension deactivation, all file watchers and panel listeners are disposed cleanly.
+
+---
+
+## 6. Default Tag Propagation Subsystem
+
+When a Default tag's text is modified by the user (either by typing into its inline live input or selecting from the preset dropdown `↓`):
+
+```text
+[User Edits Default Tag Text]
+         │
+         ▼
+[updateInputTagText / applyDefaultValue in wiringCoordinator.js]
+         │
+         ├─► Mutates Default tag's own source file at its code range
+         │
+         ├─► Saves updated word + range in companion Visualizer JSON
+         │
+         └─► propagateDefaultTagChange(workspaceRoot, defaultTagId, newText)
+                   │
+                   ├─► Reads all wires from workspace-layout.json + Visualizer JSON files
+                   │
+                   └─► For each wire where sourceTagId === defaultTagId:
+                             │
+                             ├─► Resolves target file path (same file or different file)
+                             │
+                             └─► updateInputTagText(workspaceRoot, targetPath, targetTagId, newText, false)
+                                       │
+                                       ├─► Mutates Input tag's source code range
+                                       └─► Saves updated word + range in target Visualizer JSON
+```
+
+**Key implementation detail**: The recursive call to `updateInputTagText` for connected Input tags passes `propagateDefault = false` to prevent infinite propagation loops.
+
+**DOM Live Update**: On the Webview side, `syncConnectedInputsInDom(sourceTagId, newText)` immediately updates the displayed value inside any connected Input tag's DOM `<input>` element before the full canvas refresh arrives.
+
+---
+
+## 7. Wire Integrity Verification Subsystem
+
+Every call to `scanWorkspaceHierarchy()` — which fires on every canvas refresh — performs a wire integrity pass:
+
+```text
+[scanWorkspaceHierarchy called]
+         │
+         ├─► walkDir collects allTagsMap (tagId + fileRel → tag) and fileDocsMap
+         │
+         ├─► Collects allWorkspaceWires from:
+         │       • savedLayout.wires (workspace-layout.json)
+         │       • Each file node's wires array (Visualizer JSON)
+         │
+         └─► For each wire in allWorkspaceWires (only connected tags are checked):
+                   │
+                   ├─► Resolve sourceTag.word and targetTag.word
+                   │
+                   ├─► If sourceTag AND targetTag both exist AND their words differ:
+                   │       → Add wire to removedWireKeys set
+                   │
+                   └─► After all wires checked:
+                           ├─► Remove all removedWireKeys from savedLayout.wires
+                           ├─► Remove all removedWireKeys from each file node's wires array
+                           └─► Persist updated Visualizer JSON for affected files
+```
+
+**Scope**: Only connected tag pairs are checked. Tags with no wires are ignored entirely, preventing false positives from unrelated tag edits.

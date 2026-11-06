@@ -1,0 +1,477 @@
+{
+  "version": "1.0.0",
+  "savedAt": "2026-11-05T09:21:03.320Z",
+  "viewport": {
+    "x": 69.93581059564247,
+    "y": -1563.1732757522575,
+    "zoom": 0.15
+  },
+  "scope": {
+    "type": "root",
+    "path": ""
+  },
+  "folders": {
+    "docs": {
+      "x": 60,
+      "y": 4510,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "example": {
+      "x": 760,
+      "y": 4510,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "example/Backend": {
+      "x": 1460,
+      "y": 4510,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "media": {
+      "x": 2160,
+      "y": 4510,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "media/icons": {
+      "x": 2860,
+      "y": 4510,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "src": {
+      "x": 60,
+      "y": 5210,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    },
+    "test": {
+      "x": 760,
+      "y": 5210,
+      "width": 600,
+      "height": 450,
+      "isCollapsed": false
+    }
+  },
+  "files": {
+    "docs/architecture-and-design.md": {
+      "x": 60,
+      "y": 60,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "docs/component-palette-and-scaffolding.md": {
+      "x": 660,
+      "y": 60,
+      "width": 580,
+      "height": 1465,
+      "isCollapsed": false
+    },
+    "docs/data-contract-interop.md": {
+      "x": 1320,
+      "y": 60,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "docs/file-explorer.md": {
+      "x": 60,
+      "y": 60,
+      "width": 340,
+      "height": 260,
+      "isCollapsed": false
+    },
+    "docs/implementation-roadmap-and-testing.md": {
+      "x": 1920,
+      "y": 60,
+      "width": 850,
+      "height": 1231,
+      "isCollapsed": false
+    },
+    "docs/marker-comment-spec.md": {
+      "x": 2850,
+      "y": 60,
+      "width": 850,
+      "height": 1635,
+      "isCollapsed": false
+    },
+    "docs/node-editor-and-canvas.md": {
+      "x": 60,
+      "y": 710,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "docs/README.md": {
+      "x": 660,
+      "y": 710,
+      "width": 520,
+      "height": 599,
+      "isCollapsed": false
+    },
+    "docs/requirements.md": {
+      "x": 1260,
+      "y": 710,
+      "width": 580,
+      "height": 697,
+      "isCollapsed": false
+    },
+    "docs/wiring-and-cord-engine.md": {
+      "x": 1920,
+      "y": 710,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "example/app.py": {
+      "x": 60,
+      "y": 60,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "example/Backend/app.py": {
+      "x": 2957.45,
+      "y": 710,
+      "width": 580,
+      "height": 445,
+      "isCollapsed": false
+    },
+    "example/Backend/app2.py": {
+      "x": 480,
+      "y": 60,
+      "width": 340,
+      "height": 639,
+      "isCollapsed": false
+    },
+    "example/Readme.txt": {
+      "x": 60,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "extension.js": {
+      "x": 660,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "media/drawflow.min.css": {
+      "x": 1260,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "media/drawflow.min.js": {
+      "x": 1860,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "media/main.css": {
+      "x": 2460,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "media/main.js": {
+      "x": 3060,
+      "y": 1360,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "package-lock.json": {
+      "x": 60,
+      "y": 2010,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "package.json": {
+      "x": 660,
+      "y": 2010,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "README.md": {
+      "x": 1260,
+      "y": 2010,
+      "width": 520,
+      "height": 785,
+      "isCollapsed": false
+    },
+    "src/directoryScanner.js": {
+      "x": 1860,
+      "y": 2010,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/layoutEngine.js": {
+      "x": 2460,
+      "y": 2010,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/markerParser.js": {
+      "x": 3060,
+      "y": 2010,
+      "width": 580,
+      "height": 785,
+      "isCollapsed": false
+    },
+    "src/paletteScanner.js": {
+      "x": 60,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/persistenceBridge.js": {
+      "x": 660,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/rangeEngine.js": {
+      "x": 1260,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/statusBar.js": {
+      "x": 1860,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/webviewPanelManager.js": {
+      "x": 2460,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "src/wiringCoordinator.js": {
+      "x": 3060,
+      "y": 2660,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "test/directoryScanner.test.js": {
+      "x": 60,
+      "y": 3310,
+      "width": 580,
+      "height": 4339,
+      "isCollapsed": false
+    },
+    "test/layoutEngine.test.js": {
+      "x": 720,
+      "y": 3310,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "test/markerParser.test.js": {
+      "x": 1320,
+      "y": 3310,
+      "width": 850,
+      "height": 843,
+      "isCollapsed": false
+    },
+    "test/persistenceBridge.test.js": {
+      "x": 2250,
+      "y": 3310,
+      "width": 520,
+      "height": 400,
+      "isCollapsed": false
+    },
+    "test/wiringCoordinator.test.js": {
+      "x": 2850,
+      "y": 3310,
+      "width": 580,
+      "height": 400,
+      "isCollapsed": false
+    }
+  },
+  "components": {
+    "docs/component-palette-and-scaffolding.md::Component-Name": {
+      "x": 35,
+      "y": 100
+    },
+    "docs/component-palette-and-scaffolding.md::...": {
+      "x": 305,
+      "y": 100
+    },
+    "docs/component-palette-and-scaffolding.md::Name": {
+      "x": 35,
+      "y": 780
+    },
+    "docs/component-palette-and-scaffolding.md::New-Component": {
+      "x": 305,
+      "y": 780
+    },
+    "docs/implementation-roadmap-and-testing.md::Comp": {
+      "x": 35,
+      "y": 100
+    },
+    "docs/implementation-roadmap-and-testing.md::Name": {
+      "x": 305,
+      "y": 100
+    },
+    "docs/implementation-roadmap-and-testing.md::Auth": {
+      "x": 575,
+      "y": 100
+    },
+    "docs/implementation-roadmap-and-testing.md::Database": {
+      "x": 35,
+      "y": 780
+    },
+    "docs/implementation-roadmap-and-testing.md::Header": {
+      "x": 305,
+      "y": 780
+    },
+    "docs/marker-comment-spec.md::Component-1": {
+      "x": 575,
+      "y": 780
+    },
+    "docs/marker-comment-spec.md::Component": {
+      "x": 35,
+      "y": 1460
+    },
+    "docs/marker-comment-spec.md::${componentName}": {
+      "x": 305,
+      "y": 1460
+    },
+    "docs/marker-comment-spec.md::Comp": {
+      "x": 575,
+      "y": 1460
+    },
+    "docs/README.md::Component-Name": {
+      "x": 35,
+      "y": 100
+    },
+    "docs/requirements.md::Component-Name": {
+      "x": 35,
+      "y": 100
+    },
+    "docs/requirements.md::ID": {
+      "x": 305,
+      "y": 100
+    },
+    "docs/requirements.md::Component": {
+      "x": 35,
+      "y": 438
+    },
+    "example/Backend/app.py::DatabaseConnection": {
+      "x": 35,
+      "y": 100
+    },
+    "example/Backend/app.py::DatabaseConnection 4": {
+      "x": 305,
+      "y": 100
+    },
+    "example/Backend/app.py::DatabaseConnection-1": {
+      "x": 35,
+      "y": 270
+    },
+    "example/Backend/app2.py::DatabaseConnection": {
+      "x": 35,
+      "y": 100
+    },
+    "example/Backend/app2.py::DatabaseConnection 4": {
+      "x": 35,
+      "y": 270
+    },
+    "example/Backend/app2.py::DatabaseConnection-1": {
+      "x": 35,
+      "y": 440
+    },
+    "README.md::Component-Name": {
+      "x": 35,
+      "y": 100
+    },
+    "src/markerParser.js::Name": {
+      "x": 35,
+      "y": 100
+    },
+    "src/markerParser.js::${componentName}": {
+      "x": 305,
+      "y": 100
+    },
+    "test/directoryScanner.test.js::RootComp": {
+      "x": 35,
+      "y": 100
+    },
+    "test/directoryScanner.test.js::AuthComp": {
+      "x": 305,
+      "y": 100
+    },
+    "test/directoryScanner.test.js::ServiceComp": {
+      "x": 35,
+      "y": 440
+    },
+    "test/directoryScanner.test.js::SourceComp": {
+      "x": 35,
+      "y": 2480
+    },
+    "test/directoryScanner.test.js::TargetComp": {
+      "x": 35,
+      "y": 3160
+    },
+    "test/directoryScanner.test.js::MainComp": {
+      "x": 35,
+      "y": 3840
+    },
+    "test/markerParser.test.js::AuthModule": {
+      "x": 35,
+      "y": 100
+    },
+    "test/markerParser.test.js::DataPipeline": {
+      "x": 305,
+      "y": 100
+    },
+    "test/markerParser.test.js::NavbarComponent": {
+      "x": 575,
+      "y": 100
+    },
+    "test/markerParser.test.js::UnfinishedComponent": {
+      "x": 35,
+      "y": 270
+    },
+    "test/markerParser.test.js::MyComp": {
+      "x": 35,
+      "y": 668
+    },
+    "test/wiringCoordinator.test.js::TargetComp": {
+      "x": 35,
+      "y": 100
+    },
+    "test/wiringCoordinator.test.js::SecondComp": {
+      "x": 305,
+      "y": 100
+    }
+  },
+  "wires": []
+}

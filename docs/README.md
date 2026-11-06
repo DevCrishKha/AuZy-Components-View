@@ -13,6 +13,8 @@ The **Auzy-Components-View** extension transforms standard, text-based source co
 - **Visual Plug & Play Development**: Developers—from professional engineers creating clean architecture to children and coding students—can drag pre-packaged components from a language palette directly onto the canvas. Dropping a node automatically generates the underlying code in the active editor!
 - **Interactive Wirable Ports (Input, Output, Default)**: Tags marked by the companion **Auzy-Keyword-Marker Extension** appear on the node with real-time sockets. Pulling a visual wire/cord from an Output or Default tag's port and dropping it into an Input tag's socket instantly rewrites the underlying code and syncs the tag definitions.
 - **Direct In-Node Value Editing**: Input tag values can be edited directly on the canvas without opening the source code editor.
+- **Default Tag Inline Editing & Propagation**: Default tags also render an inline editable input on the canvas. When the user changes a Default tag's value, the new value automatically propagates to every connected Input tag — updating the source code and JSON across all files instantly.
+- **Wire Integrity Auto-Check**: Every canvas refresh automatically validates all connected wire pairs. If the `word` text of a source tag and its target tag have diverged (e.g. edited independently), the wire is silently removed to prevent stale connections from persisting on the canvas.
 - **Drawflow.js Canvas Architecture**: Pure JavaScript node editor utilizing Drawflow.js for native node dragging, bezier curve rendering, port events, and custom HTML templates.
 - **Filesystem-Only Decoupled Architecture**: Extension #1 (Auzy-Keyword-Marker) and Extension #2 (Auzy-Components-View) communicate strictly via files on disk (`external-vscode-extension/Visualizer/<filename>.json` and the source code files). They do not share memory or process state.
 
@@ -24,14 +26,14 @@ Every document in this directory serves a dedicated role in guiding the developm
 
 | Document | Purpose & Key Topics |
 | :--- | :--- |
-| [**`requirements.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/requirements.md) | Full functional requirements, user journeys, status bar activation, editor tab webview, palette interaction, wiring behavior, and UI controls. |
-| [**`architecture-and-design.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/architecture-and-design.md) | High-level Drawflow system architecture, VS Code Webview panel mechanics, two-way messaging protocol, state management, and file watcher sync. |
-| [**`marker-comment-spec.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/marker-comment-spec.md) | Exact syntax, regex parsing, language comment syntax adaptation (Python `#`, JS `//`, HTML `<!-- -->`), code range calculation, and code injection rules. |
-| [**`component-palette-and-scaffolding.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/component-palette-and-scaffolding.md) | Language palette UI, folder library configuration, storage of source folders in `sources.json`, live folder scanning, and drag-and-drop code generation. |
-| [**`node-editor-and-canvas.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/node-editor-and-canvas.md) | 2D canvas specs, node sizing formula (min/max bounds based on code length & tag count), relative tag positioning algorithm, space compaction, and tag rendering in Drawflow. |
-| [**`wiring-and-cord-engine.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/wiring-and-cord-engine.md) | Bezier cord rendering, drag-to-connect physics, port collision detection, code mutation on connect, and undo/rewire mechanics. |
-| [**`data-contract-interop.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/data-contract-interop.md) | Complete JSON schema contract for `external-vscode-extension/Visualizer/<filename>.json`. Compatibility rules for co-existing with Auzy-Keyword-Marker. |
-| [**`implementation-roadmap-and-testing.md`**](file:///c:/Users/User/Desktop/VSCode_Extension/docs2/implementation-roadmap-and-testing.md) | Phased implementation roadmap, project directory layout, unit test suites (Node test runner in pure JavaScript), mock fixtures, and common pitfalls. |
+| [**`requirements.md`**](./requirements.md) | Full functional requirements, user journeys, status bar activation, editor tab webview, palette interaction, wiring behavior, Default tag inline editing + propagation, wire integrity auto-check, and UI controls. |
+| [**`architecture-and-design.md`**](./architecture-and-design.md) | High-level Drawflow system architecture, VS Code Webview panel mechanics, two-way messaging protocol, state management, Default tag propagation subsystem, wire integrity subsystem, and file watcher sync. |
+| [**`marker-comment-spec.md`**](./marker-comment-spec.md) | Exact syntax, regex parsing, language comment syntax adaptation (Python `#`, JS `//`, HTML `<!-- -->`), code range calculation, and code injection rules. |
+| [**`component-palette-and-scaffolding.md`**](./component-palette-and-scaffolding.md) | Language palette UI, folder library configuration, storage of source folders in `sources.json`, live folder scanning, and drag-and-drop code generation. |
+| [**`node-editor-and-canvas.md`**](./node-editor-and-canvas.md) | 2D canvas specs, node sizing formula (min/max bounds based on code length & tag count), relative tag positioning algorithm, space compaction, and tag rendering in Drawflow. Includes Default tag inline input spec. |
+| [**`wiring-and-cord-engine.md`**](./wiring-and-cord-engine.md) | Bezier cord rendering, drag-to-connect physics, port collision detection, code mutation on connect, Default-to-Input propagation flow, wire integrity verification subsystem, and undo/rewire mechanics. |
+| [**`data-contract-interop.md`**](./data-contract-interop.md) | Complete JSON schema contract for `external-vscode-extension/Visualizer/<filename>.json`, dual wire storage contract, wire integrity rules, Default propagation IPC contract, and compatibility rules for co-existing with Auzy-Keyword-Marker. |
+| [**`implementation-roadmap-and-testing.md`**](./implementation-roadmap-and-testing.md) | Phased implementation roadmap (Phases 1–7), project directory layout, unit test suites (Node test runner in pure JavaScript), mock fixtures, and common pitfalls. |
 
 ---
 

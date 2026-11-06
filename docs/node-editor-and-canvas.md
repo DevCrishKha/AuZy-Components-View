@@ -153,7 +153,7 @@ Every tag inside a component is color-coded to match the code editor's decoratio
 | :--- | :--- | :--- | :--- |
 | **`variable:Input`** | `rgba(180, 190, 205, 0.15)` | `1px dashed rgba(160, 175, 195, 0.7)` | Left socket: `⭕` (Input Port) |
 | **`variable:Output`** | `rgba(46, 204, 113, 0.35)` | `1px solid rgba(46, 204, 113, 0.85)` | Right socket: `⭕` (Output Port) |
-| **`variable:Default`**| `rgba(243, 156, 18, 0.38)` | `1px solid rgba(230, 126, 34, 0.95)` | Dropdown: `↓`, Right socket: `⭕` |
+| **`variable:Default`**| `rgba(243, 156, 18, 0.38)` | `1px solid rgba(230, 126, 34, 0.95)` | Inline live input + Dropdown: `↓`, Right socket: `⭕` |
 | **`tut-tag`** | `rgba(233, 30, 99, 0.35)` | `1px solid rgba(233, 30, 99, 0.85)` | Clickable link text + `?` info |
 | **`function`** | `rgba(155, 89, 182, 0.35)` | `1px solid rgba(155, 89, 182, 0.85)` | Info badge |
 
@@ -191,14 +191,22 @@ Every tag inside a component is color-coded to match the code editor's decoratio
 ### 5.3 Default Tag: `<Text> ↓ ? ⭕`
 ```html
 <div class="tag-row tag-default" data-tag-id="tag_789">
-  <span class="tag-word">maxRetries</span>
-  <button class="btn-dropdown" title="Select default value">↓</button>
+  <!-- Inline live editable input (same as Input tag) -->
+  <input type="text" class="tag-live-input" value="maxRetries" />
+  <!-- Dropdown button for selecting from preset defaultValues -->
+  <button class="btn-dropdown-arrow" title="Select default value">↓</button>
   <span class="icon-info" title="Click to view Title & Description">?</span>
+  <!-- Right port socket to pull a wire from -->
   <div class="socket socket-output" title="Drag wire to an Input port">⭕</div>
 </div>
 ```
-- Clicking `↓` reveals a floating menu with `defaultValues` (e.g. `['3', '5', '10']`).
-- Selecting a value replaces the word in code and updates the tag.
+- **Inline Text Editing**: Like Input tags, Default tags now render a `<input type="text" class="tag-live-input">`. When the user edits the text and presses `Enter` or blurs:
+  1. The Webview sends `APPLY_DEFAULT_VALUE` to the Extension Host.
+  2. The Host mutates the Default tag's own source code and JSON metadata.
+  3. **If the Default tag is wired to one or more Input tags**, each connected Input tag's source code and JSON is also automatically updated to match the new text.
+  4. Any connected Input tag's DOM `<input>` element is updated immediately in the Webview for instant visual feedback (via `syncConnectedInputsInDom`).
+- **Dropdown (`↓`)**: Clicking reveals a floating menu of `defaultValues`. Selecting a value behaves identically to text editing — it updates the Default tag and propagates to all wired Input tags.
+- **Wire Compatibility**: Default tags can still be drag-wired to Input tags via their `⭕` right socket.
 
 ### 5.4 Tut-Tag: `<Text> ?`
 ```html

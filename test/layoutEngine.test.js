@@ -83,3 +83,28 @@ test('Layout Engine - computeContainerLayout calculates bounding box for childre
   assert.ok(layout.positions.has('c3'));
 });
 
+test('Layout Engine - computeContainerLayout places items in a single vertical column in order', () => {
+  const items = [
+    { id: 'c1', width: 240, height: 150 },
+    { id: 'c2', width: 240, height: 160 },
+    { id: 'c3', width: 240, height: 140 }
+  ];
+
+  const layout = computeContainerLayout(items, 1, 35, 30, 65);
+  const p1 = layout.positions.get('c1');
+  const p2 = layout.positions.get('c2');
+  const p3 = layout.positions.get('c3');
+
+  // All X coordinates must be aligned to padding (35px)
+  assert.equal(p1.x, 35);
+  assert.equal(p2.x, 35);
+  assert.equal(p3.x, 35);
+
+  // Y coordinates must be stacked vertically in order
+  assert.equal(p1.y, 65 + 35); // 100
+  assert.equal(p2.y, p1.y + 150 + 30); // 280
+  assert.equal(p3.y, p2.y + 160 + 30); // 470
+  assert.ok(p1.y < p2.y);
+  assert.ok(p2.y < p3.y);
+});
+

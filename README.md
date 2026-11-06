@@ -1,4 +1,7 @@
-# Auzy: Components View (VS Code Extension #2)
+```C
+© Copyright [2026] [Dev Crish Kha]
+```
+# Auzy: Components View (VS Code Extension #2 in AuZy Toolkit)
 
 An interactive, visual, node-based programming and multi-file code navigation environment powered by Drawflow.js and embedded directly inside Visual Studio Code.
 
@@ -54,44 +57,3 @@ npm test
 ```
 
 ---
-
-## 📂 Project Architecture
-
-```text
-Auzy-Components-View/
-├── .vscode/
-│   ├── launch.json                   # F5 extension debugging profile
-│   └── tasks.json                    # npm test build task
-├── docs/                             # Full architectural & algorithmic specifications
-├── example/                          # Mock multi-folder test files
-│   ├── app.py
-│   ├── Backend/
-│   │   └── app.py
-│   └── external-vscode-extension/
-│       └── Visualizer/
-├── media/                            # Canvas frontend assets
-│   ├── drawflow.min.css              # Drawflow styling
-│   ├── drawflow.min.js               # Drawflow runtime
-│   ├── main.css                      # Glassmorphic themes & animations
-│   ├── main.js                       # Infinite canvas, dragging, wires, & focus mode
-│   └── icons/                        # Circuit SVG icons
-├── src/                              # Host subsystems (Pure JavaScript)
-│   ├── markerParser.js               # Polyglot marker comment parsing
-│   ├── directoryScanner.js           # Recursive workspace & tree scanner
-│   ├── layoutEngine.js               # Dynamic sizing, tag placement & gap compression
-│   ├── wiringCoordinator.js          # Bezier wiring & code mutation engine
-│   ├── persistenceBridge.js          # File & layout persistence bridge
-│   ├── paletteScanner.js             # Component scaffolding library scanner
-│   ├── webviewPanelManager.js        # Webview lifecycle & IPC message bridge
-│   └── statusBar.js                  # Status bar item registration
-├── test/                             # Native test suite (node --test)
-│   ├── markerParser.test.js
-│   ├── layoutEngine.test.js
-│   ├── wiringCoordinator.test.js
-│   ├── directoryScanner.test.js
-│   └── persistenceBridge.test.js
-├── extension.js                      # Extension entrypoint
-├── package.json                      # Extension manifest
-└── README.md                         # Project documentation
-```
-

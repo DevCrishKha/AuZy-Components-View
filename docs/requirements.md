@@ -84,13 +84,14 @@ Tags marked in the source file (stored in the companion Visualizer JSON) are pla
 | **REQ-4** | Dynamic Node Sizing | Sizing algorithm with minimum bounds (e.g. 180x120px) and maximum bounds (e.g. 500x600px). Height scales with lines of code and tag count. |
 | **REQ-5** | Relative Tag Layout | Tags inside the node are placed vertically and horizontally relative to their actual line numbers and character positions in the code, with an empty-space compression algorithm to avoid excess spacing. |
 | **REQ-6** | In-Node Input Text Edit | Input tags render an inline text input. Modifying this text updates the underlying source code file and the tag's `word` entry in the Visualizer JSON. |
-| **REQ-7** | Default Dropdown Selector | Default tags render a dropdown button `↓`. Clicking it displays the tag's `defaultValues`. Selecting one applies it to code and updates the tag. |
+| **REQ-7** | Default Tag Selector & Propagation | Default tags render an inline text input and a dropdown button `↓`. Modifying the text via typing or selecting from `defaultValues` applies the new token to source code and metadata. If the Default tag is connected to an Input tag via a wire, the connected Input tag's text is automatically updated in code and metadata. |
 | **REQ-8** | Interactive Tutorial Viewer | Clicking a Tut-Tag on a node displays an overlay dialog rendering the embedded tutorial elements (text cards, code snippets with syntax styling, links, images). |
 | **REQ-9** | Wiring Engine | Output and Default tags feature draggable cord sockets (`⭕`). Connecting to an Input socket updates the code token, preserves the Input tag's identity and metadata, and draws a permanent SVG bezier curve connecting the ports. |
 | **REQ-10**| Palette Scaffolding | Sidebar palette organized by language. Scans configured folders for `<{<< Component >>}>` blocks and renders preview chips. |
 | **REQ-11**| Folder Configuration UI | Modal or panel to add/remove folder directories per language. Persists settings in `external-vscode-extension/Visualizer/sources.json`. |
 | **REQ-12**| Drag & Drop Insertion | Dragging a palette component onto the canvas appends the code to the document, shifts tags, writes to Visualizer JSON, and spawns the node. |
 | **REQ-13**| File-Based State Decoupling| All state exchanges must occur via disk files and standard VS Code document events. No in-memory coupling with other extensions. |
+| **REQ-14**| Wire Integrity Check on Canvas Refresh | Every time the canvas refreshes, the system checks whether the text inside connected tags (Input-to-Output or Input-to-Default) are identical. If the connected tags' text differs, the connection is automatically severed and removed from workspace and file metadata. Unconnected tags are not affected. |
 
 ---
 

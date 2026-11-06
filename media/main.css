@@ -208,6 +208,305 @@ body, html {
 }
 
 /* ==========================================================================
+   File Explorer Panel
+   ========================================================================== */
+
+#file-explorer {
+  position: absolute;
+  top: 48px;
+  left: 12px;
+  z-index: 95;
+  width: 240px;
+  max-height: calc(100% - 70px);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.18s ease;
+}
+
+.explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+.explorer-header:hover {
+  background: var(--surface-4);
+}
+
+.explorer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.explorer-header-right {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.explorer-chevron {
+  font-size: 9px;
+  color: var(--text-dim);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.explorer-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.explorer-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-bright);
+  white-space: nowrap;
+}
+
+.explorer-focused-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explorer-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.12s, background 0.12s;
+  flex-shrink: 0;
+}
+
+.explorer-btn:hover {
+  color: var(--text-bright);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.explorer-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+#file-explorer.collapsed {
+  width: auto;
+  max-width: 260px;
+}
+
+#file-explorer.collapsed .explorer-header {
+  border-bottom: none;
+}
+
+#file-explorer.collapsed .explorer-body {
+  display: none;
+}
+
+#file-explorer.collapsed .explorer-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Path bar */
+.explorer-path-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.explorer-path-icon {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.explorer-path-text {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tree view */
+.explorer-tree {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  padding: 3px 0;
+}
+
+.explorer-tree::-webkit-scrollbar {
+  width: 4px;
+}
+.explorer-tree::-webkit-scrollbar-track {
+  background: transparent;
+}
+.explorer-tree::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 2px;
+}
+.explorer-tree::-webkit-scrollbar-thumb:hover {
+  background: var(--border-default);
+}
+
+/* Root workspace row */
+.tree-row-root {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+
+.tree-row-root:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-bright);
+}
+
+.tree-row-root.active {
+  color: var(--accent-blue);
+  background: rgba(75, 123, 236, 0.08);
+}
+
+/* Folder rows */
+.tree-folder {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+
+.tree-folder-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-bright);
+}
+
+.tree-folder-header.active {
+  color: var(--accent-blue);
+  background: rgba(75, 123, 236, 0.08);
+}
+
+.tree-folder-chevron {
+  font-size: 8px;
+  color: var(--text-dim);
+  transition: transform 0.15s ease, background 0.12s ease, color 0.12s ease;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tree-folder-chevron:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-bright);
+}
+
+.tree-folder-chevron.open {
+  transform: rotate(90deg);
+}
+
+.tree-folder-children {
+  display: none;
+  padding-left: 14px;
+}
+
+.tree-folder-children.open {
+  display: block;
+}
+
+/* File rows */
+.tree-file-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+
+.tree-file-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-bright);
+}
+
+.tree-file-row.active {
+  color: var(--accent-cyan);
+  background: rgba(63, 193, 201, 0.08);
+}
+
+.tree-row-icon {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.tree-row-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-row-count {
+  font-size: 9px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
    Floating Controls Toolbar
    ========================================================================== */
 
@@ -552,7 +851,8 @@ body, html {
   background: rgba(75, 123, 236, 0.18);
 }
 
-.tag-input input.tag-live-input {
+.tag-input input.tag-live-input,
+.tag-default input.tag-live-input {
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-subtle);
   color: var(--text-bright);
@@ -568,6 +868,11 @@ body, html {
 .tag-input input.tag-live-input:focus {
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 1px rgba(75, 123, 236, 0.3);
+}
+
+.tag-default input.tag-live-input:focus {
+  border-color: #f0b27a;
+  box-shadow: 0 0 0 1px rgba(230, 126, 34, 0.4);
 }
 
 /* ── Output Tag ────────────────────────────────────────────────────────── */

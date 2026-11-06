@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { parseComponentsFromSource } = require('./markerParser');
 const { calculateNodeDimensions, layoutTagsOnNode, computeContainerLayout } = require('./layoutEngine');
-const { loadVisualizerJson, loadWorkspaceLayout } = require('./persistenceBridge');
+const { loadVisualizerJson, loadWorkspaceLayout, saveVisualizerJson, saveWorkspaceLayout } = require('./persistenceBridge');
 
 const IGNORED_DIRS = new Set([
   'node_modules',
@@ -61,6 +61,9 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
       totalTags: 0
     }
   };
+
+  const allTagsMap = new Map(); // (fileRel + '::' + tagId) and tagId -> Tag
+  const fileDocsMap = new Map(); // fileRel -> { absPath, doc }
 
   // Helper to recursively walk directories
   function walkDir(currentAbsDir, currentRelDir = '') {
@@ -118,7 +121,42 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
         const parsedComps = parseComponentsFromSource(content, entryRelPath);
         const visualizerDoc = loadVisualizerJson(workspaceRoot, entryAbsPath);
         const tags = visualizerDoc?.tags || [];
-        const wires = visualizerDoc?.wires || [];
+        let wires = visualizerDoc?.wires || [];
+
+        fileDocsMap.set(normalizedEntryRel, { absPath: entryAbsPath, doc: visualizerDoc });
+        for (const t of tags) {
+          if (t && t.id) {
+            allTagsMap.set(`${normalizedEntryRel}::${t.id}`, t);
+            if (!allTagsMap.has(t.id)) {
+              allTagsMap.set(t.id, t);
+            }
+          }
+        }
+
+        // Dual-persistence fallback: If visualizerDoc.wires is missing/empty, recover from savedLayout.wires
+        if (savedLayout.wires && Array.isArray(savedLayout.wires)) {
+          const layoutWires = savedLayout.wires.filter(w => w.targetFile === normalizedEntryRel);
+          if (wires.length === 0 && layoutWires.length > 0) {
+            wires = layoutWires;
+            if (visualizerDoc) {
+              visualizerDoc.wires = wires;
+              saveVisualizerJson(workspaceRoot, entryAbsPath, visualizerDoc);
+            }
+          } else if (wires.length > 0) {
+            for (const w of wires) {
+              if (!savedLayout.wires.some(lw => lw.id === w.id || (lw.targetTagId === w.targetTagId && lw.sourceTagId === w.sourceTagId))) {
+                savedLayout.wires.push(w);
+              }
+            }
+          }
+        } else if (wires.length > 0) {
+          if (!savedLayout.wires) savedLayout.wires = [];
+          for (const w of wires) {
+            if (!savedLayout.wires.some(lw => lw.id === w.id)) {
+              savedLayout.wires.push(w);
+            }
+          }
+        }
 
         // Build component objects with tagged coordinates and dimensions
         const fileComponents = parsedComps.map((comp, compIdx) => {
@@ -172,8 +210,8 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
           isCollapsed: savedFilePos?.isCollapsed || false,
           x: savedFilePos?.x,
           y: savedFilePos?.y,
-          width: savedFilePos?.width || 520,
-          height: savedFilePos?.height || 400
+          width: savedFilePos?.width || 340,
+          height: savedFilePos?.height || 260
         };
 
         tree.files.set(normalizedEntryRel, fileNode);
@@ -189,6 +227,76 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
 
   walkDir(workspaceRoot, '');
 
+  // Validate all connected tags across the workspace:
+  // Every time the canvas refreshes, check if the text inside the wired tags
+  // (such as input-to-output tag or input-to-default tag) are the same.
+  // If the text inside connected tags are not the same, remove the connection.
+  const removedWireKeys = new Set();
+  const allWorkspaceWires = [];
+
+  if (savedLayout.wires && Array.isArray(savedLayout.wires)) {
+    for (const w of savedLayout.wires) {
+      const wireKey = w.id || `${w.sourceTagId}->${w.targetTagId}`;
+      if (!allWorkspaceWires.some(existing => (existing.id || `${existing.sourceTagId}->${existing.targetTagId}`) === wireKey)) {
+        allWorkspaceWires.push(w);
+      }
+    }
+  }
+  for (const fileNode of tree.files.values()) {
+    for (const w of fileNode.wires || []) {
+      const wireKey = w.id || `${w.sourceTagId}->${w.targetTagId}`;
+      if (!allWorkspaceWires.some(existing => (existing.id || `${existing.sourceTagId}->${existing.targetTagId}`) === wireKey)) {
+        allWorkspaceWires.push(w);
+      }
+    }
+  }
+
+  for (const wire of allWorkspaceWires) {
+    const srcFileRel = (wire.sourceFile || '').replace(/\\/g, '/');
+    const tgtFileRel = (wire.targetFile || '').replace(/\\/g, '/');
+
+    const sourceTag = allTagsMap.get(`${srcFileRel}::${wire.sourceTagId}`) || allTagsMap.get(wire.sourceTagId);
+    const targetTag = allTagsMap.get(`${tgtFileRel}::${wire.targetTagId}`) || allTagsMap.get(wire.targetTagId);
+
+    // Check only connected tags where both endpoints exist
+    if (sourceTag && targetTag) {
+      const sourceText = (sourceTag.word || '').replace(/[\r\n]+$/, '');
+      const targetText = (targetTag.word || '').replace(/[\r\n]+$/, '');
+
+      if (sourceText !== targetText) {
+        const wireKey = wire.id || `${wire.sourceTagId}->${wire.targetTagId}`;
+        removedWireKeys.add(wireKey);
+        if (wire.id) removedWireKeys.add(wire.id);
+      }
+    }
+  }
+
+  // Remove disconnected wires from savedLayout
+  if (savedLayout.wires && Array.isArray(savedLayout.wires) && removedWireKeys.size > 0) {
+    savedLayout.wires = savedLayout.wires.filter(w => {
+      const key = w.id || `${w.sourceTagId}->${w.targetTagId}`;
+      return !removedWireKeys.has(key) && !removedWireKeys.has(w.id);
+    });
+  }
+
+  // Remove disconnected wires from each file node and persist removal to file JSON
+  for (const [fileRel, fileNode] of tree.files) {
+    if (fileNode.wires && Array.isArray(fileNode.wires) && removedWireKeys.size > 0) {
+      const prevLen = fileNode.wires.length;
+      fileNode.wires = fileNode.wires.filter(w => {
+        const key = w.id || `${w.sourceTagId}->${w.targetTagId}`;
+        return !removedWireKeys.has(key) && !removedWireKeys.has(w.id);
+      });
+      if (fileNode.wires.length !== prevLen) {
+        const fileEntry = fileDocsMap.get(fileRel);
+        if (fileEntry && fileEntry.doc) {
+          fileEntry.doc.wires = fileNode.wires;
+          saveVisualizerJson(workspaceRoot, fileEntry.absPath, fileEntry.doc);
+        }
+      }
+    }
+  }
+
   // Populate subfolders array on each folder
   for (const [folderRel, folder] of tree.folders) {
     if (folder.parentRelPath && tree.folders.has(folder.parentRelPath)) {
@@ -198,6 +306,10 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
 
   // Auto-calculate positions for any elements that do not have saved positions
   autoLayoutUnpositionedItems(tree);
+
+  if (savedLayout.wires) {
+    saveWorkspaceLayout(workspaceRoot, savedLayout);
+  }
 
   return {
     rootPath: workspaceRoot,
@@ -211,18 +323,18 @@ async function scanWorkspaceHierarchy(workspaceRoot) {
 }
 
 /**
- * Computes nice grid-based layout offsets for components, files, and folders
+ * Computes single-column layout for components inside files and grid layout for files/folders
  * that do not have explicitly saved coordinates.
  * @param {Object} tree
  */
 function autoLayoutUnpositionedItems(tree) {
-  // 1. Position components inside each file
+  // 1. Position components inside each file in a single column ordered by code file appearance
   for (const file of tree.files.values()) {
     const unpositionedComps = file.components.filter(c => c.x === undefined || c.y === undefined);
     if (unpositionedComps.length > 0) {
       const compLayout = computeContainerLayout(
         file.components,
-        file.components.length > 4 ? 3 : 2,
+        1,
         35,
         30,
         65
@@ -230,12 +342,12 @@ function autoLayoutUnpositionedItems(tree) {
       for (const comp of file.components) {
         if (comp.x === undefined || comp.y === undefined) {
           const pos = compLayout.positions.get(comp.id);
-          comp.x = pos ? pos.x : 40;
-          comp.y = pos ? pos.y : 80;
+          comp.x = pos ? pos.x : 35;
+          comp.y = pos ? pos.y : 100;
         }
       }
-      file.width = Math.max(file.width || 520, compLayout.width);
-      file.height = Math.max(file.height || 400, compLayout.height);
+      file.width = Math.max(file.width || 340, compLayout.width);
+      file.height = Math.max(file.height || 220, compLayout.height);
     }
   }
 
@@ -245,7 +357,7 @@ function autoLayoutUnpositionedItems(tree) {
     if (file.x === undefined || file.y === undefined) {
       file.x = rootFileOffset.x;
       file.y = rootFileOffset.y;
-      rootFileOffset.x += (file.width || 520) + 80;
+      rootFileOffset.x += (file.width || 340) + 80;
       if (rootFileOffset.x > 3200) {
         rootFileOffset.x = 60;
         rootFileOffset.y += 650;

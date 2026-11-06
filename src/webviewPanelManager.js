@@ -134,10 +134,7 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
       const absPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
       await updateInputTagText(workspaceRoot, absPath, tagId, newText);
 
-      currentPanel.webview.postMessage({
-        command: 'TAG_UPDATED',
-        payload: { tagId, newText }
-      });
+      await refreshWebview(workspaceRoot);
       break;
     }
 
@@ -146,10 +143,7 @@ async function handleWebviewMessage(message, workspaceRoot, context) {
       const absPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
       await applyDefaultValue(workspaceRoot, absPath, tagId, selectedValue);
 
-      currentPanel.webview.postMessage({
-        command: 'TAG_UPDATED',
-        payload: { tagId, newText: selectedValue }
-      });
+      await refreshWebview(workspaceRoot);
       break;
     }
 
@@ -268,6 +262,29 @@ function getWebviewContent(webview, extensionPath) {
   <!-- Top Breadcrumb Navigation Bar -->
   <div id="top-nav">
     <div class="breadcrumb-item active">🏠 Workspace</div>
+  </div>
+
+  <!-- File Explorer Panel (below workspace breadcrumb) -->
+  <div id="file-explorer">
+    <div class="explorer-header" id="explorer-header">
+      <div class="explorer-header-left">
+        <span class="explorer-chevron" id="explorer-chevron">▼</span>
+        <span class="explorer-icon">📁</span>
+        <span class="explorer-title">File Explorer</span>
+      </div>
+      <div class="explorer-header-right">
+        <span class="explorer-focused-path" id="explorer-focused-path"></span>
+        <button class="explorer-btn" id="explorer-collapse-all" title="Collapse all folders">⇲</button>
+        <button class="explorer-btn" id="explorer-toggle" title="Collapse / Expand">—</button>
+      </div>
+    </div>
+    <div class="explorer-body" id="explorer-body">
+      <div class="explorer-path-bar" id="explorer-path-bar">
+        <span class="explorer-path-icon">📍</span>
+        <span class="explorer-path-text" id="explorer-path-text">/ (Workspace Root)</span>
+      </div>
+      <div class="explorer-tree" id="explorer-tree"></div>
+    </div>
   </div>
 
   <!-- Floating Action Toolbar -->

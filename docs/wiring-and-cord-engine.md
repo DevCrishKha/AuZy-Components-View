@@ -153,3 +153,38 @@ When a valid connection is finalized:
 2. **Deleting a Wire**:
    Clicking directly on an existing wire displays a small `(×)` delete badge. Clicking `(×)` severs the connection (leaving the current text intact or prompting to reset).
 
+---
+
+## 6. Default Tag to Input Tag Text Synchronization
+
+When a user modifies the text inside a **Default tag** from the Components View (either by typing into its inline live input box or selecting an option from its preset dropdown `↓`):
+
+1. **Local Mutation**:
+   The Default tag's word is updated in the source code file at its exact range and its companion Visualizer JSON is updated.
+2. **Connected Input Tag Discovery**:
+   The host identifies all active wires where `sourceTagId` matches the modified Default tag's ID.
+3. **Automatic Input Tag Code Mutation**:
+   For each connected Input tag (whether in the same file or a different file across the workspace):
+   - The target source code file is mutated at the Input tag's range to reflect the new text.
+   - Any adjacent or subsequent tags in the target document are shifted accurately via `RangeEngine`.
+   - The target Input tag's `word` and range `endCharacter` are updated in its companion Visualizer JSON.
+   - Live DOM input elements in the Webview canvas are updated immediately to provide instant visual feedback.
+
+---
+
+## 7. Wire Integrity Verification on Canvas Refresh
+
+Every time the canvas refreshes (via user toolbar refresh, VS Code document save/change events, visualizer file watcher triggers, or drill-down navigation):
+
+1. **Targeted Validation for Connected Tags Only**:
+   The system iterates exclusively over active wires in the workspace (connections between Input-to-Output or Input-to-Default tags). Tags that are not wired together are ignored.
+2. **Text Equality Check**:
+   For each connected wire, the text (`word`) of the source tag is compared against the text (`word`) of the target tag.
+3. **Automatic Disconnection on Text Divergence**:
+   If the text inside the connected tags is **not the same** (for instance, if an Input tag was manually edited with a different value, or an Output tag was modified in the code editor without updating the input):
+   - The wire connection is severed.
+   - The wire record is removed from `workspace-layout.json`.
+   - The wire record is removed from the target file's Visualizer companion JSON (`<file>.json`).
+   - The bezier SVG path is removed from the canvas.
+   - Both tags retain their current individual text in code.
+
